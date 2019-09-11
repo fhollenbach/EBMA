@@ -1,0 +1,3 @@
+useDynLib(EBMAforecast, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
