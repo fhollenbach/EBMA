@@ -140,7 +140,7 @@ setMethod(f="prediction",
               }
 
             # Runs if user specifies Bayesian algorithm
-            if(method=="Bayesian"){
+            if(method=="gibbs"){
               LL <- numeric(); iter <- numeric()
               x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, iterations, burnin, thin)
               W_out <- x1[["W_out"]]

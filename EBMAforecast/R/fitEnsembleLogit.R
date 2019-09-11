@@ -22,7 +22,6 @@ setMethod(f="fitEnsemble",
             predType="posteriorMedian",
             const=0,
             W = c(),
-            whichW = 1,
             iterations=10000,
             burnin = 1000,
             thin = 50)
@@ -52,6 +51,22 @@ setMethod(f="fitEnsemble",
                 stop("Vector of initial model weights must sum to 1.")}
             }
 
+            ##Extract data
+            predCalibration <- slot(.forecastData, "predCalibration")
+            outcomeCalibration <- slot(.forecastData, "outcomeCalibration")
+            predTest <- slot(.forecastData, "predTest")
+            outcomeTest <- slot(.forecastData, "outcomeTest")
+            .testPeriod <- length(predTest)>0
+            modelNames <- slot(.forecastData, "modelNames")
+            
+            ## Set constants
+            nMod <-  ncol(predCalibration)
+            nDraws <- dim(predCalibration)[3]
+            nObsCal <- nrow(predCalibration)
+            nObsTest <- nrow(predTest)
+            ZERO<-1e-4
+            dimnames(predCalibration)<-list(c(1:nObsCal), modelNames, c(1:nDraws))
+            dimnames(predCalibration)
             
             ## unless user specified, set initial values for parameters
             if(is.null(W)){
@@ -95,30 +110,14 @@ setMethod(f="fitEnsemble",
               return(.outPred)
             }
 
-
-            ##Extract data
-            predCalibration <- slot(.forecastData, "predCalibration")
-            outcomeCalibration <- slot(.forecastData, "outcomeCalibration")
-            predTest <- slot(.forecastData, "predTest")
-            outcomeTest <- slot(.forecastData, "outcomeTest")
-            .testPeriod <- length(predTest)>0
-            modelNames <- slot(.forecastData, "modelNames")
-
-             ## Set constants
-            nMod <-  ncol(predCalibration); nDraws <- dim(predCalibration)[3]
-            nObsCal <- nrow(predCalibration); nObsTest <- nrow(predTest)
-            ZERO<-1e-4
-            dimnames(predCalibration)<-list(c(1:nObsCal), modelNames, c(1:nDraws))
-            dimnames(predCalibration)
-
             ## Fit Models
             if(useModelParams){
               .models <- plyr::alply(predCalibration, 2:3, .fun=.modelFitter)
               for(i in 1:nMod){
                 if(any(unname(.models[[i]][[2]]) > 0.5)){
-                cat("Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
+                cat("WARNING: Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
                     which(unname(.models[[i]][[2]]) > 0.5), "\n")
-                warning("Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
+                cat("WARNING: Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
                 }
                 .models[[i]] <- .models[[i]][[1]]
               }
@@ -155,14 +154,46 @@ setMethod(f="fitEnsemble",
             if(method=="EM"){
               if(is.null(dim(W))){
                 out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),W,tol,maxIter, const)
-                if (out$Iterations==maxIter){print("WARNING: Maximum iterations reached")}
+                if (out$Iterations==maxIter){cat("WARNING: Maximum iterations reached")}
                 W <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); names(W) <- modelNames
                 LL = out$LL
                 iter = out$Iterations
               }
-            }
-            # Runs if user specifies EM algorithm
-            if(method=="EM"){
+              # This is calibration based on all sets of starting weights
+              # Calibrating for as many times as are different weights if is a matrix of weights input,
+              # checking to see if the weights significantly differ
+              if(is.matrix(W)){
+                # Matrix to store all posterior weights in
+                store.W <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
+                store.LL <- rep(NA, dim(W)[1])
+                store.iter <- rep(NA, dim(W)[1])
+                
+                colnames(store.W) <- modelNames
+                for(i in 1:dim(W)[1]){
+                  vectorW <- W[i,]
+                  out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),vectorW,tol,maxIter, const)
+                  if (out$Iterations==maxIter){cat(paste("WARNING: Maximum iterations reached for set", i, "of your weights \n"))}
+                  vectorW <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); names(vectorW) <- modelNames
+                  store.LL[i] = out$LL
+                  store.iter[i] = out$Iterations
+                  store.W[i,] <- vectorW
+                }
+                # Calculating mean absolute difference of posterior weights
+                combs <- gtools::combinations(dim(W)[1], 2)
+                store.MAD <- rep(NA,dim(combs)[1])
+                for(i in 1:dim(combs)[1]){
+                  store.MAD[i] <- mean(abs(store.W[combs[i,1], ] - store.W[combs[i,2], ]), na.rm = T)
+                }
+                # Error if any mean absolute difference of posterior weights > 0.0001
+                if(any(store.MAD > 0.0001)){
+                  cat("WARNING: The mean absolute difference between the sets of posterior weights is above 0.0001. \n
+                          The posterior EBMA prediction is only based on the last set of weights.")
+                }
+                #### Use weights from last row of starting weights matrix 
+                W <- store.W[dim(W)[1],]
+                LL = store.LL[dim(W)[1]]
+                iter = store.iter[dim(W)[1]]
+              }
               .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
               bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
               bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
@@ -171,14 +202,45 @@ setMethod(f="fitEnsemble",
             }
             
             
-            
-            ####### code bloack if method is "gibbs"
+            ####### code block if method is "gibbs"
             # Runs if user specifies Bayesian algorithm
             if(method=="gibbs"){
-              LL <- numeric(); iter <- numeric()
+              LL <- numeric()
+              iter <- numeric()
+              #### one set starting weights
+              if(is.null(dim(W))){
               x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, iterations, burnin, thin)
-              
               W_out <- x1[["W_out"]]
+              }
+              #### multiple sets of starting weights
+              if(is.matrix(W)){
+                # Matrix to store all posterior weights in
+                store.W.median <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
+
+                colnames(store.W.median) <- modelNames
+                for(i in 1:dim(W)[1]){
+                  vectorW <- W[i,]
+                  x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, iterations, burnin, thin)
+                  vectorW <- x1[["W_out"]]
+                  names(vectorW) <- modelNames
+                  store.W.median[i,] <- apply(vectorW, 2, FUN=median)
+                }
+                ### save posterior weights based on last set of initial weights
+                W_out <- vectorW
+                
+                # Calculating mean absolute difference of posterior weights
+                combs <- gtools::combinations(dim(W)[1], 2)
+                store.MAD <- rep(NA,dim(combs)[1])
+                for(i in 1:dim(combs)[1]){
+                  store.MAD[i] <- mean(abs(store.W.median[combs[i,1], ] - store.W.median[combs[i,2], ]), na.rm = T)
+                }
+                # Error if any mean absolute difference of posterior weights > 0.0001
+                if(any(store.MAD > 0.0001)){
+                  cat("WARNING: The mean absolute difference between the sets of median posterior weights is above 0.0001. \n
+                          The posterior EBMA prediction is only based on the last set of weights.")
+                }
+                }
+              
               # print(W_out[1,])
               .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
               many.predictions <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W_out)[1])
@@ -193,50 +255,7 @@ setMethod(f="fitEnsemble",
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
             }
             
-            
-            # This is calibration based on all sets of starting weights
-            # Calibrating for as many times as are different weights if is a matrix of weights input,
-            # checking to see if the weights significantly differ
-            if(is.matrix(W)){
-              W2 <- W[whichW,]
-              # Matrix to store all posterior weights in
-              store.W <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
-              colnames(store.W) <- modelNames
-              for(i in 1:dim(W)[1]){
-                  vectorW <- W[i,]
-                  out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),vectorW,tol,maxIter, const)
-                  if (out$Iterations==maxIter){cat(paste("WARNING: Maximum iterations reached for set", i, "of your weights"))}
-                  vectorW <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); names(vectorW) <- modelNames
-                  LL = out$LL
-                  iter = out$Iterations
-                  store.W[i,] <- vectorW
-                  }
-              # Calculating mean absolute difference of posterior weights
-              store.MAD <- matrix(data=NA, nrow=1, ncol=dim(store.W)[2])
-              colnames(store.MAD) <- modelNames
-              for(i in 1:dim(store.W)[2]){
-                dif <- abs(store.W[1, i] - store.W[2, i])
-                out <- (mean(dif, na.rm = TRUE))
-                store.MAD[, i] <- out
-              }
-              W <- W2
-              # Error if any mean absolute difference of posterior weights > 0.0001
-              if(any(store.MAD > 0.0001)){
-                warning("The mean absolute difference between the sets of posterior weights is above 0.0001.
-                        The posterior EBMA prediction is only based on the first set of weights.")
-              }
-            }
-
-
-
-
-            
-
-            
-
-
-            
-
+            #### create out of sample predictions if testPeriod data exists
             if(.testPeriod){
               if(useModelParams==TRUE){
                 .adjPred <- .makeAdj(predTest)
@@ -254,6 +273,16 @@ setMethod(f="fitEnsemble",
                 predTestAdj <- .adjPred
               }
 
+              # Runs if user specifies EM algorithm
+              if(method=="EM"){
+                W_out <- matrix()
+                .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
+                bmaPredTest[,,-1] <- NA
+                test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
+              }
+              
               # Runs if user specifies Bayesian algorithm
               if(method=="gibbs"){
                 .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
@@ -264,21 +293,10 @@ setMethod(f="fitEnsemble",
                   bmaPredTest[,,-1] <- NA
                   many.predictions2[,i] <- bmaPredTest[,1,]
                 }
-                bmaPredTest[,1,] <- plyr::apply(many.predictions2, 1, FUN=median)
+                bmaPredTest[,1,] <- apply(many.predictions2, 1, FUN=median)
                 test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
+                W <- numeric() 
               }
-
-              # Runs if user specifies EM algorithm
-              if(method=="EM"){
-                W_out <- matrix()
-                .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
-                bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
-                bmaPredTest[,,-1] <- NA
-                test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
-              }
-
-
             }
             if(!.testPeriod){{test <- .forecastData@predTest}}
             if(useModelParams==FALSE){.models = list()}
