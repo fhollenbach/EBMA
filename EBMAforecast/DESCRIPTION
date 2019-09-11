@@ -2,10 +2,17 @@ Package: EBMAforecast
 Type: Package
 Title: Estimate Ensemble Bayesian Model Averaging forecasts using Gibbs Sampling or EM-Algorithms
 Version: 1.1.0
-Date: 2019-09-10
-Author: Your Name
+Date: 2019-09-11
+Author: Florian M. Hollenbach, Jacob Montgomery, and Michael D. Ward
 Maintainer: Florian M. Hollenbach <fhollenbach@tamu.edu>
 Description: Create forecasts from multiple predictions using ensemble Bayesian model averaging (EBMA). EBMA models can be estimated using an expectation maximization (EM) algorithm or as fully Bayesian models via Gibbs sampling.
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.2)
+Imports: Rcpp (>= 1.0.2),
+         plyr,
+ 	 stats,
+    	 graphics,		
+    	 separationplot,
+         methods,
+    	 Hmisc,
+    	 abind
 LinkingTo: Rcpp

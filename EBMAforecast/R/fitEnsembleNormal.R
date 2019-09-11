@@ -90,7 +90,7 @@ setMethod(f="fitEnsemble",
 
             ## Fit Models
             if(useModelParams==TRUE){
-              .models <- alply(predCalibration, 2:3, .fun=.modelFitter)
+              .models <- plyr::alply(predCalibration, 2:3, .fun=.modelFitter)
               for(i in 1:nMod){
                 if(any(unname(.models[[i]][[2]]) > 0.5)){
                   cat("Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
@@ -103,12 +103,12 @@ setMethod(f="fitEnsemble",
 
             ## Extract needed info
             if(nDraws==1 & useModelParams==TRUE){
-              predCalibrationAdj <- aperm(array(laply(.models, .predictCal), dim=c(nMod, nObsCal, nDraws)), c(2,1,3))
-              modelParams <- aperm(array(laply(.models, coefficients), dim=c(nMod, 2, nDraws)), c(2,1,3))
+              predCalibrationAdj <- aperm(array(plyr::laply(.models, .predictCal), dim=c(nMod, nObsCal, nDraws)), c(2,1,3))
+              modelParams <- aperm(array(plyr::laply(.models, coefficients), dim=c(nMod, 2, nDraws)), c(2,1,3))
             }
             if(nDraws>1 & useModelParams==TRUE){ # This code is in development for exchangeability
-              predCalibrationAdj <- aperm(aaply(.models, 1:2, .predictCal), c(3,1,2))
-              modelParams <- aperm(aaply(.models, 1:2, coefficients), c(3,1,2))
+              predCalibrationAdj <- aperm(plyr::aaply(.models, 1:2, .predictCal), c(3,1,2))
+              modelParams <- aperm(plyr::aaply(.models, 1:2, coefficients), c(3,1,2))
             }
             if(useModelParams==FALSE){
               predCalibrationAdj <- predCalibration
@@ -171,11 +171,11 @@ setMethod(f="fitEnsemble",
             }
 
             ## Merge the EBMA forecasts for the calibration sample onto the predCalibration matrix
-            .flatPreds <- aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
+            .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
             .sdVec <- rep(sqrt(sigma2), nMod)
 
             if (predType=="posteriorMean"){
-              bmaPred <- array(aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+              bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
               bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
               bmaPred[,,-1] <- NA
             }
@@ -187,7 +187,7 @@ setMethod(f="fitEnsemble",
                 ..sdVec <- .sdVec[!is.na(x)]
                 .ebmaMedian(.W, .x, ..sdVec)
               }
-             bmaPred <- array(aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
+             bmaPred <- array(plyr::aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
              bmaPred[,,-1] <- NA
             }
             cal <- abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
@@ -204,10 +204,10 @@ setMethod(f="fitEnsemble",
                 }
               }
               if(useModelParams==FALSE){predTestAdj <- predTest}
-              .flatPredsTest <- matrix(aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+              .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
 
               if (predType=="posteriorMean"){
-                bmaPredTest <-array(aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                 bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                 bmaPredTest[,,-1] <- NA
               }
@@ -219,7 +219,7 @@ setMethod(f="fitEnsemble",
                   ..sdVec <- .sdVec[!is.na(x)]
                   .ebmaMedian( .W, .x, ..sdVec)
                 }
-                bmaPredTest <- array(aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
+                bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
                 bmaPredTest[,,-1] <- NA
               }
 

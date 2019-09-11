@@ -87,12 +87,12 @@ setMethod(f="compareModels",
           {
             if(.period == "calibration")
               {
-                preds <- aaply(.forecastData@predCalibration,c(1:2),mean)
+                preds <- plyr::aaply(.forecastData@predCalibration,c(1:2),mean)
                 y <- .forecastData@outcomeCalibration
               }
             if(.period=="test")
               {
-                preds <-  aaply(.forecastData@predTest,c(1:2),mean)
+                preds <-  plyr::aaply(.forecastData@predTest,c(1:2),mean)
                 y <- .forecastData@outcomeTest
               }
 
@@ -154,14 +154,14 @@ setMethod(f="compareModels",
             
             if("brier" %in%.fitStatistics & class(.forecastData)[1]=="FDatFitLogit"){
               my.fun <- function(x){mean((x-y)^2, na.rm=TRUE)}
-              outMat[,"brier"] <-aaply(preds, 2,.fun=my.fun, .expand=TRUE)
+              outMat[,"brier"] <-plyr::aaply(preds, 2,.fun=my.fun, .expand=TRUE)
                                              }
             if("auc" %in% .fitStatistics & class(.forecastData)[1]=="FDatFitLogit"){
-              my.fun <- function(x){somers2(x, y)[1]}
-              outMat[,"auc"] <- aaply(preds, 2,.fun=my.fun, .expand=TRUE)}
+              my.fun <- function(x){Hmisc::somers2(x, y)[1]}
+              outMat[,"auc"] <- plyr::aaply(preds, 2,.fun=my.fun, .expand=TRUE)}
             if("perCorrect" %in% .fitStatistics){
               my.fun <- function(x){mean((x>.threshold)*y + (x<.threshold)*(1-y), na.rm=TRUE)}
-              outMat[,"perCorrect"] <- aaply(preds, 2,.fun=my.fun, .expand=TRUE)
+              outMat[,"perCorrect"] <- plyr::aaply(preds, 2,.fun=my.fun, .expand=TRUE)
             }
             if("pre" %in% .fitStatistics & class(.forecastData)[1]=="FDatFitLogit") {
               my.fun <- function(x){
@@ -174,16 +174,16 @@ setMethod(f="compareModels",
                 baseline.wrong <- .nObsThis-sum(.baseModelThis==.yThis)
                 (baseline.wrong - num.wrong)/baseline.wrong
               }
-              outMat[,"pre"] <- aaply(preds, 2,.fun=my.fun, .expand=TRUE)
+              outMat[,"pre"] <- plyr::aaply(preds, 2,.fun=my.fun, .expand=TRUE)
             }
             if("rmse" %in% .fitStatistics & class(.forecastData)[1]=="FDatFitNormal"){
               my.fun <- function(x) {sqrt(mean((x-y)^2, na.rm=TRUE))}
-              outMat[,"rmse"] <- aaply(preds, 2, .fun=my.fun, .expand=TRUE)
+              outMat[,"rmse"] <- plyr::aaply(preds, 2, .fun=my.fun, .expand=TRUE)
 
             }
             if("mae" %in% .fitStatistics & class(.forecastData)[1]=="FDatFitNormal"){
               my.fun <- function(x) {mean(abs(x-y), na.rm=TRUE)}
-              outMat[,"mae"] <- aaply(preds, 2, .fun=my.fun, .expand=TRUE)
+              outMat[,"mae"] <- plyr::aaply(preds, 2, .fun=my.fun, .expand=TRUE)
 
             }
             

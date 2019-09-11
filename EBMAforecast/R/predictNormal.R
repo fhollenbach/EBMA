@@ -60,10 +60,10 @@ setMethod(f="prediction",
                 }
               } 
             if(useModelParams==FALSE){predTestAdj <- Predictions}
-            .flatPredsTest <- matrix(aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+            .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
               
             if (predType=="posteriorMean"){
-              bmaPredTest <-array(aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+              bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
               bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
               bmaPredTest[,,-1] <- NA
             }
@@ -75,7 +75,7 @@ setMethod(f="prediction",
                 ..sdVec <- .sdVec[!is.na(x)]
                 .ebmaMedian(.W, .x, ..sdVec)
               }
-              bmaPredTest <- array(aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
+              bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
               bmaPredTest[,,-1] <- NA
             }
              

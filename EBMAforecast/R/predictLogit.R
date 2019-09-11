@@ -94,20 +94,20 @@ setMethod(f="prediction",
             
             ## Fit Models
             if(useModelParams){
-              .models <- alply(predCalibration, 2:3, .fun=.modelFitter)
+              .models <- plyr::alply(predCalibration, 2:3, .fun=.modelFitter)
             }
 
              ## Extract needed info
             if(nDraws==1 & useModelParams==TRUE){
-              predCalibrationAdj <- aperm(array(laply(.models, .predictCal), dim=c(nMod, nObsCal, nDraws)), c(2,1,3))
+              predCalibrationAdj <- aperm(array(plyr::laply(.models, .predictCal), dim=c(nMod, nObsCal, nDraws)), c(2,1,3))
               dim(predCalibrationAdj)
-              array(laply(.models, coefficients), dim=c(nMod, 2, nDraws))
-              modelParams <- aperm(array(laply(.models, coefficients), dim=c(nMod, 2, nDraws)), c(2,1,3))
+              array(plyr::laply(.models, coefficients), dim=c(nMod, 2, nDraws))
+              modelParams <- aperm(array(plyr::laply(.models, coefficients), dim=c(nMod, 2, nDraws)), c(2,1,3))
             }
 
             if(nDraws>1 & useModelParams==TRUE){ # This code is in development for exchangeability
-              predCalibrationAdj <- aperm(aaply(.models, 1:2, .predictCal), c(3,1,2))
-              modelParams <- aperm(aaply(.models, 1:2, coefficients), c(3,1,2))
+              predCalibrationAdj <- aperm(plyr::aaply(.models, 1:2, .predictCal), c(3,1,2))
+              modelParams <- aperm(plyr::aaply(.models, 1:2, coefficients), c(3,1,2))
             }
             if(useModelParams==FALSE){
               .adjPred <- .makeAdj(predCalibration)
@@ -145,22 +145,22 @@ setMethod(f="prediction",
               x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, iterations, burnin, thin)
               W_out <- x1[["W_out"]]
               
-              .flatPredsTest <- matrix(aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+              .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
               many.predictions2 <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W_out)[1])
               
               for(i in 1:dim(W_out)[1]){
-                bmaPredTest <-array(aaply(.flatPredsTest, 1, function(x) {sum(x* W_out[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W_out[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                 bmaPredTest <-  bmaPredTest/array(t(W_out[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                 bmaPredTest[,,-1] <- NA
                 many.predictions2[,i] <- bmaPredTest[,1,]
               }
-              bmaPredTest[,1,] <- apply(many.predictions2, 1, FUN=median)
+              bmaPredTest[,1,] <- plyr::apply(many.predictions2, 1, FUN=median)
               test <- abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
             }
             
             if(method=="EM"){
-              .flatPredsTest <- matrix(aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-              bmaPredTest <-array(aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+              .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+              bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
               bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
               bmaPredTest[,,-1] <- NA
               test <- abind(bmaPredTest, Predictions, along=2);  colnames(test) <- c("EBMA", modelNames)

@@ -73,7 +73,7 @@ setMethod(
                       ...){
     out <- compareModels(object, .period=period, .fitStatistics=fitStatistics, .threshold=threshold, .baseModel=baseModel)@fitStatistics
     if(showCoefs){
-      coefs <- data.matrix(as.data.frame(t(aaply(object@modelParams, 1:2, function(x) {mean(x, na.rm=TRUE)}))))
+      coefs <- data.matrix(as.data.frame(t(plyr::aaply(object@modelParams, 1:2, function(x) {mean(x, na.rm=TRUE)}))))
       coefs <- rbind(c(NA,NA), coefs)
       out <- cbind(coefs, out)
     }
@@ -101,7 +101,7 @@ setMethod(
     out <- compareModels(object, .period=period, .fitStatistics=fitStatistics, .threshold=threshold, .baseModel=baseModel)@fitStatistics
     
     if(showCoefs){
-      coefs <- data.matrix(as.data.frame(t(aaply(object@modelParams, 1:2, function(x) {mean(x, na.rm=TRUE)}))))
+      coefs <- data.matrix(as.data.frame(t(plyr::aaply(object@modelParams, 1:2, function(x) {mean(x, na.rm=TRUE)}))))
       coefs <- rbind(c(NA,NA), coefs)
       out <- cbind(coefs, out)
     }
@@ -135,7 +135,7 @@ setMethod(
     par(mgp=c(1, 0, 0), lend = 2, mar=c(1,0,1,0), mfrow=c(numModels, 1))
     for (i in 1:numModels){
       .miss <- is.na(.pred[,i, nDraw])
-      separationplot(pred=as.vector(.pred[!.miss,i, nDraw]), actual=as.vector(.actual[!.miss]), heading=modelNames[i], newplot=F)
+      separationplot::separationplot(pred=as.vector(.pred[!.miss,i, nDraw]), actual=as.vector(.actual[!.miss]), heading=modelNames[i], newplot=F)
     }
   }
 )
