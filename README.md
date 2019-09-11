@@ -18,5 +18,5 @@ Example code coming soon.
 References
 -----------
 
--   Montgomery, Jacob M., Florian M. Hollenbach, and Michael D. Ward. 2015. Calibrating Ensemble Forecasting Models with Sparse Data in the Social Sciences. *International Journal of Forecasting*. 31(3). 930–942. [doi.org/10.1016/j.ijforecast.2014.08.001]
--   Montgomery, Jacob M., Florian M. Hollenbach, and Michael D. Ward. 2012. Improving Predictions Using Ensemble Bayesian Model Averaging. *Political Analysis*. 20(3): 271–291. [doi.org/10.1093/pan/mps002]
+-   Montgomery, Jacob M., Florian M. Hollenbach, and Michael D. Ward. 2015. Calibrating Ensemble Forecasting Models with Sparse Data in the Social Sciences. *International Journal of Forecasting*. 31(3). 930–942. <doi.org/10.1016/j.ijforecast.2014.08.001>
+-   Montgomery, Jacob M., Florian M. Hollenbach, and Michael D. Ward. 2012. Improving Predictions Using Ensemble Bayesian Model Averaging. *Political Analysis*. 20(3): 271–291. <doi.org/10.1093/pan/mps002>
