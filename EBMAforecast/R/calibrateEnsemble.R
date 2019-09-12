@@ -12,9 +12,8 @@ NULL
 #' @param maxIter The maximum number of iterations the EM algorithm will run before stopping automatically. The default is \code{maxIter=10000}.
 #' @param model The model type that should be used given the type of data that is being predicted (i.e., normal, binary, etc.).
 #' @param method The estimation method used. It takes either an \code{EM} or \code{gibbs} as an argument.
-#' @param predType The prediction type used for the EBMA model under the normal model, user can choose either \code{posteriorMedian} or \code{posteriorMean}. Posterior median is the default.
+#' @param predType The prediction type used for the gibbs sampling EBMA model, user can choose either \code{posteriorMedian} (default) or \code{posteriorMean}. Model performance statistics are based on the posterior median or mean forecast. Note that the posterior median forecast is not equal to the forecast based on the median posterior weight.
 #' @param W A vector or matrix of initial model weights. If unspecified, each model will receive weight equal to 1/number of Models
-#' @param whichW If W is a matrix of initial model weights, an integer denoting the row of weights to use in the final calibration. The default is the first row.
 #' @param const user provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0.
 #' @param iterations The number of iterations for the Bayseian model. Default = 10000.
 #' @param burnin The burn in for the Gibbs sampler. Default = 1000.
@@ -23,23 +22,24 @@ NULL
 #' @param ... Not implemented
 #'
 #' @return Returns a data of class 'FDatFitLogit' or FDatFitNormal, a subclass of 'ForecastData', with the following slots
-#' \item{predCalibration}{A matrix containing the predictions of all component models and the EBMA model for all observations in the calibration period.}
-#' \item{predTest}{A matrix containing the predictions of all component models and the EBMA model for all observations in the test period.}
+#' \item{predCalibration}{A matrix containing the predictions of all component models and the EBMA model for all observations in the calibration period. Under gibbs sampling, the EBMA prediction is either the median or mean of the posterior predictive distribution, depending on the \code{predType} setting.}
+#' \item{predTest}{A matrix containing the predictions of all component models and the EBMA model for all observations in the test period. Under gibbs sampling, the EBMA prediction is either the median or mean of the posterior predictive distribution, depending on the \code{predType} setting.}
 #' \item{outcomeCalibration}{A vector containing the true values of the dependent variable for all observations in the calibration period.}
 #' \item{outcomeTest}{An optional vector containing the true values of the dependent variable for all observations in the test period.}
 #' \item{modelNames}{A character vector containing the names of all component models.  If no model names are specified, names will be assigned automatically.}
-#' \item{modelWeights}{A vector containing the posterior model weights assigned to each model.}
+#' \item{modelWeights}{A vector containing model weights assigned to each model. When the gibbs sampler is used, this slot contains either the median or mean of the posterior weights, depending on the \code{predType} setting.
 #' \item{modelParams}{The parameters for the individual logit models that transform the component models.}
 #' \item{useModelParams}{Indicator whether model parameters for transformation were estimated or not.}
-#' \item{logLik}{The final log-likelihood for the calibrated EBMA model.}
+#' \item{logLik}{The final log-likelihood for the calibrated EBMA model. Empty for estimations using the gibbs sampler.}
 #' \item{exp}{The exponential shrinkage term.}
 #' \item{tol}{Tolerance for improvements in the log-likelihood before the EM algorithm will stop optimization.}
 #' \item{maxIter}{The maximum number of iterations the EM algorithm will run before stopping automatically.}
 #' \item{method}{The estimation method used. }
-#' \item{iter}{Number of iterations run in the EM algorithm.}
+#' \item{iter}{Number of iterations run in the EM algorithm. Empty for estimations using the gibbs sampler.}
 #' \item{call}{The actual call used to create the object.}
-#' \item{posteriorWeights}{A matrix of the posterior model weights from model calibration, with each row corresponding to each row of weights specified in W.}
-#' \item{posteriorBayesian}{A matrix of the posterior model weights from the Bayesian method.}
+#' \item{posteriorWeights}{A matrix of the full posterior model weights from model calibration. Rows are the observations in the calibration period, columns are the saved iterations of the gibbs sampler. Empty for EM estimations.}
+#' \item{posteriorPredCalibration}{A matrix of the posterior predictive distribution for observations in the calibration period, based on the full posterior of model weights. Empty for EM estimations.}
+#' \item{posteriorPredTest}{A matrix of the posterior predictive distribution for observations in the test period, based on the full posterior of model weights. Empty for EM estimations.}
 #'
 #'
 #' @author Michael D. Ward <\email{michael.d.ward@@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@@tamu.edu}>

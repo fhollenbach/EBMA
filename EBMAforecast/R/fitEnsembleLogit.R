@@ -24,7 +24,7 @@ setMethod(f="fitEnsemble",
             W = c(),
             iterations=10000,
             burnin = 1000,
-            thin = 50)
+            thin = 20)
           {
             if(iterations < (burnin)){
               stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
@@ -152,6 +152,7 @@ setMethod(f="fitEnsemble",
             ###### code block if method is "EM"
             # Runs if user specifies EM algorithm
             if(method=="EM"){
+              postPredCal <- postPredTest <- matrix()
               if(is.null(dim(W))){
                 out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),W,tol,maxIter, const)
                 if (out$Iterations==maxIter){cat("WARNING: Maximum iterations reached")}
@@ -244,18 +245,26 @@ setMethod(f="fitEnsemble",
                           The posterior EBMA prediction is only based on the last set of weights.")
                 }
                 }
-              ### median weights for results
-              W <- apply(W.mat, 2, FUN=median)
-              
+
               .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
-              many.predictions <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
+              postPredCal <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
               for(i in 1:dim(W.mat)[1]){
                 bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
                 bmaPred <-  bmaPred/array(t(W.mat[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
                 bmaPred[,,-1] <- NA
-                many.predictions[,i] <- bmaPred[,1,]
+                postPredCal[,i] <- bmaPred[,1,]
               }
-              bmaPred[,1,] <- apply(many.predictions, 1, FUN=median)
+              ### median or mean weights for results (depending on predType) and prediction
+              if(predType == "posteriorMedian"){
+                cat("Predictive performance statistics and vector of model weights based on posterior median.")
+                W <- apply(W.mat, 2, FUN=median)
+                bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
+              }
+              if(predType == "posteriorMean"){
+                cat("Predictive performance statistics and vector of model weights based on posterior mean.")
+                W <- apply(W.mat, 2, FUN=mean)
+                bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
+              }
               # print(bmaPred)
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
               
@@ -296,14 +305,19 @@ setMethod(f="fitEnsemble",
               # Runs if user specifies Bayesian algorithm
               if(method=="gibbs"){
                 .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-                many.predictions2 <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W.mat)[1])
+                postPredTest <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W.mat)[1])
                 for(i in 1:dim(W.mat)[1]){
                   bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                   bmaPredTest <-  bmaPredTest/array(t(W.mat[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                   bmaPredTest[,,-1] <- NA
-                  many.predictions2[,i] <- bmaPredTest[,1,]
+                  postPredTest[,i] <- bmaPredTest[,1,]
                 }
-                bmaPredTest[,1,] <- apply(many.predictions2, 1, FUN=median)
+                if(predType == "posteriorMean"){
+                  bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=mean)
+                }
+                if(predType == "posteriorMedian"){
+                  bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=median)
+                }
                 test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
               }
             }
@@ -331,6 +345,8 @@ setMethod(f="fitEnsemble",
                 model = "logit",
                 modelResults = .models,
                 posteriorWeights = W.mat,
+                posteriorPredCalibration = postPredCal,
+                posteriorPredTest = postPredTest,
                 call=match.call()
                 )
           }

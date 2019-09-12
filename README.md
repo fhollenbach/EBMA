@@ -8,6 +8,13 @@ Overview
 
 The **EBMAforecast** package allows users to combine predictions from multiple models or entities in a principled manner based on the individual components predictive performance. The package provides methods to estimate ensemble Bayesian averaging models for binary and continuous outcomes via expectation maximization (EM) algorithm or gibbs sampling. The **EBMAforecast** package is largely based on Montgomery et al. (2012, 2015). 
 
+Installation
+---------------
+
+The most recent version on CRAN (currently only allows estimation via EM) can be installed using: ```r install.packages("EBMAforecast") ```. A *beta* version of the package in development can be installed using ```r install_github("fhollenbach/EBMA", subdir="EBMAforecast")```.
+
+
+
 How to use EBMAforecast
 ----------
 
