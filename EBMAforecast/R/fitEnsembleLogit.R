@@ -199,18 +199,22 @@ setMethod(f="fitEnsemble",
               bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
               bmaPred[,,-1] <- NA
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
+              
+              if(sum(W)<=.99 || sum(W)>1.01){
+                cat("WARNING: Model weights do not sum to approximately one. Something might be wrong.")
+              }
             }
             
             
             ####### code block if method is "gibbs"
             # Runs if user specifies Bayesian algorithm
             if(method=="gibbs"){
-              LL <- numeric()
-              iter <- numeric()
+              LL <-  iter <- numeric()
+
               #### one set starting weights
               if(is.null(dim(W))){
               x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, iterations, burnin, thin)
-              W_out <- x1[["W_out"]]
+              W.mat <- x1[["W_out"]]
               }
               #### multiple sets of starting weights
               if(is.matrix(W)){
@@ -221,12 +225,12 @@ setMethod(f="fitEnsemble",
                 for(i in 1:dim(W)[1]){
                   vectorW <- W[i,]
                   x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, iterations, burnin, thin)
-                  vectorW <- x1[["W_out"]]
-                  names(vectorW) <- modelNames
-                  store.W.median[i,] <- apply(vectorW, 2, FUN=median)
+                  W.mat <- x1[["W_out"]]
+                  #names(vectorW) <- modelNames
+                  store.W.median[i,] <- apply(W.mat, 2, FUN=median)
                 }
                 ### save posterior weights based on last set of initial weights
-                W_out <- vectorW
+                W.mat <- W.mat
                 
                 # Calculating mean absolute difference of posterior weights
                 combs <- gtools::combinations(dim(W)[1], 2)
@@ -240,19 +244,25 @@ setMethod(f="fitEnsemble",
                           The posterior EBMA prediction is only based on the last set of weights.")
                 }
                 }
+              ### median weights for results
+              W <- apply(W.mat, 2, FUN=median)
               
-              # print(W_out[1,])
               .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
-              many.predictions <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W_out)[1])
-              for(i in 1:dim(W_out)[1]){
-                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W_out[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
-                bmaPred <-  bmaPred/array(t(W_out[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
+              many.predictions <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
+              for(i in 1:dim(W.mat)[1]){
+                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+                bmaPred <-  bmaPred/array(t(W.mat[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
                 bmaPred[,,-1] <- NA
                 many.predictions[,i] <- bmaPred[,1,]
               }
               bmaPred[,1,] <- apply(many.predictions, 1, FUN=median)
               # print(bmaPred)
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
+              
+                if(sum(apply(W.mat, 2, mean))<=.99 || sum(apply(W.mat, 2, mean))>1.01){
+                  cat("WARNING: The mean model weights do not sum to approximately one. Something might be wrong.")
+                }
+              
             }
             
             #### create out of sample predictions if testPeriod data exists
@@ -275,7 +285,7 @@ setMethod(f="fitEnsemble",
 
               # Runs if user specifies EM algorithm
               if(method=="EM"){
-                W_out <- matrix()
+                W.mat <- matrix()
                 .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
                 bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                 bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
@@ -286,16 +296,15 @@ setMethod(f="fitEnsemble",
               # Runs if user specifies Bayesian algorithm
               if(method=="gibbs"){
                 .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-                many.predictions2 <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W_out)[1])
-                for(i in 1:dim(W_out)[1]){
-                  bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W_out[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
-                  bmaPredTest <-  bmaPredTest/array(t(W_out[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
+                many.predictions2 <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W.mat)[1])
+                for(i in 1:dim(W.mat)[1]){
+                  bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                  bmaPredTest <-  bmaPredTest/array(t(W.mat[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                   bmaPredTest[,,-1] <- NA
                   many.predictions2[,i] <- bmaPredTest[,1,]
                 }
                 bmaPredTest[,1,] <- apply(many.predictions2, 1, FUN=median)
                 test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
-                W <- numeric() 
               }
             }
             if(!.testPeriod){{test <- .forecastData@predTest}}
@@ -321,9 +330,8 @@ setMethod(f="fitEnsemble",
                 iter = iter,
                 model = "logit",
                 modelResults = .models,
-                call=match.call(),
-                posteriorWeights = store.W,
-                posteriorBayesian = W_out
+                posteriorWeights = W.mat,
+                call=match.call()
                 )
           }
           )

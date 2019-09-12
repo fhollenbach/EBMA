@@ -175,15 +175,7 @@ setClass(Class="FDatFitLogit",
            modelResults = "list",
            useModelParams = "logical",
            call="call", 
-           posteriorWeights = "matrix",
-           posteriorBayesian = "matrix"
-         ),
-         validity=function(object){
-           if(length(object@modelWeights)>0){
-             if(sum(object@modelWeights)<=.99 || sum(object@modelWeights)>1.01){
-               stop("Model weights should sum to approximately one.")
-             }
-           }
-         }
+           posteriorWeights = "matrix"
+         )
 )
 
