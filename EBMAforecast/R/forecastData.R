@@ -156,6 +156,7 @@ setClass(Class="FDatFitNormal",
            useModelParams = "logical",
            call="call", 
            posteriorWeights = "matrix",
+           posteriorSigma = "matrix",
            posteriorPredCalibration = "matrix",
            posteriorPredTest = "matrix"
          )

@@ -15,8 +15,8 @@ setMethod(f="fitEnsemble",
             useModelParams = TRUE,
             predType="posteriorMedian",
             const=0,
-            W = c(),
-            whichW=1)
+            modelPriors = c(),
+            W = c())
           {
             # Creating blank store matrix
             store.W <- matrix()
@@ -121,78 +121,165 @@ setMethod(f="fitEnsemble",
             dimnames(calResiduals) <- dimnames(calResiduals2) <-dimnames(predCalibrationAdj) <- list(1:nObsCal, modelNames, 1:nDraws)
 
             sigma2<-1
-
-            if(is.matrix(W)){
-              W2 <- W[whichW,]
-              # Matrix to store all posterior weights in
-              store.W <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
-              colnames(store.W) <- modelNames
-              for(i in 1:dim(W)[1]){
+            
+            ## Set initial values for parameters
+            if(is.null(W)){
+              W <- rep(1/(nMod), nMod) ; names(W) <- modelNames
+            }
+            
+            
+            ## Set model priors if unspecified
+            if(is.null(modelPriors)){
+              modelPriors <- rep(1, nMod)
+            }
+            #### code block for method EM
+            if(method == "EM"){
+              postPredCal <- postPredTest <- matrix() ### empty slots only used in gibbs
+              
+              ### if W is not a matrix, call to rcpp for em
+              if(is.null(dim(W))){
                 out  = emNorm(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),matrix(calResiduals2[,,1],ncol=nMod), W, tol, maxIter, const, sigma2)
                 if (out$Iterations==maxIter){print("WARNING: Maximum iterations reached")}
                 W <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); names(W) <- modelNames
                 sigma2 = out$Sigma2
                 LL = out$LL
                 iter = out$Iterations
-                store.W[i,] <- W
               }
-              # Calculating mean absolute difference of posterior weights
-              store.MAD <- matrix(data=NA, nrow=1, ncol=dim(store.W)[2])
-              colnames(store.MAD) <- modelNames
-              for(i in 1:dim(store.W)[2]){
-                dif <- abs(store.W[1, i] - store.W[2, i])
-                out <- (mean(dif, na.rm = TRUE))
-                store.MAD[, i] <- out
-              }
-              W <- W2
-              # Error if any mean absolute difference of posterior weights > 0.0001
-              if(any(store.MAD > 0.0001)){
-                warning("The mean absolute difference between the sets of posterior weights is above 0.0001.
-                  The posterior EBMA prediction is only based on the first set of weights.")
+              # This is calibration based on all sets of starting weights
+              # Calibrating for as many times as are different weights if is a matrix of weights input,
+              # checking to see if the weights significantly differ
+              if(is.matrix(W)){
+                # Matrix to store all posterior weights in
+                store.W <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
+                store.LL <- rep(NA, dim(W)[1])
+                store.iter <- rep(NA, dim(W)[1])
+                colnames(store.W) <- modelNames
+                
+                for(i in 1:dim(W)[1]){
+                  vectorW <- W[i,]
+                  
+                  out  = emNorm(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),matrix(calResiduals2[,,1],ncol=nMod), vectorW, tol, maxIter, const, sigma2)
+                  if (out$Iterations==maxIter){print("WARNING: Maximum iterations reached")}
+                  vectorW <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); 
+                  names(vectorW) <- modelNames
+                  sigma2 = out$Sigma2
+                  store.LL[i] = out$LL
+                  store.iter[i] = out$Iterations
+                  store.W[i,] <- vectorW
                 }
+                # Calculating mean absolute difference of posterior weights
+                combs <- gtools::combinations(dim(W)[1], 2)
+                store.MAD <- rep(NA,dim(combs)[1])
+                for(i in 1:dim(combs)[1]){
+                  store.MAD[i] <- mean(abs(store.W[combs[i,1], ] - store.W[combs[i,2], ]), na.rm = T)
+                }
+                # Warning if any mean absolute difference of posterior weights > 0.0001
+                if(any(store.MAD > 0.0001)){
+                  cat("WARNING: The mean absolute difference between the sets of posterior weights is above 0.0001. \n
+                    The posterior EBMA prediction is only based on the last set of weights.")
+                  }
+                #### Use weights from last row of starting weights matrix 
+                W <- store.W[dim(W)[1],]
+                LL = store.LL[dim(W)[1]]
+                iter = store.iter[dim(W)[1]]
+                }
+
+  
+              
+  
+              ## Merge the EBMA forecasts for the calibration sample onto the predCalibration matrix
+              .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
+              .sdVec <- rep(sqrt(sigma2), nMod)
+  
+              if (predType=="posteriorMean"){
+                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+                bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
+                bmaPred[,,-1] <- NA
+              }
+  
+              if (predType=="posteriorMedian"){
+                .altQBMAnormal <- function(x){
+                  .x <- x[!is.na(x)]
+                  .W <- W[!is.na(x)]
+                  ..sdVec <- .sdVec[!is.na(x)]
+                  .ebmaMedian(.W, .x, ..sdVec)
+                }
+               bmaPred <- array(plyr::aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
+               bmaPred[,,-1] <- NA
+              }
+              cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
+              
+              if(sum(W)<=.99 || sum(W)>1.01){
+                cat("WARNING: Model weights do not sum to approximately one. Something might be wrong.")
+              }
+            }
+
+            if(method == "gibbs"){
+              LL <-  iter <- sigma2 <- numeric() ### empty slots, only used for EM
+              
+              ### if W is not a matrix, call to rcpp for em
+              if(is.null(dim(W))){
+                out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, alpha = modelPriors, sigma = sigma2, iterations = iterations, burnin, thin)
+                W.mat <- out$W
+                sigma.mat = out$Sigma
+              }
+              # This is calibration based on all sets of starting weights
+              # Calibrating for as many times as are different weights if is a matrix of weights input,
+              # checking to see if the weights significantly differ
+              if(is.matrix(W)){
+                # Matrix to store all posterior weights in
+                store.W.median <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
+                colnames(store.W.median) <- modelNames
+                
+                for(i in 1:dim(W)[1]){
+                  vectorW <- W[i,]
+                  out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, alpha = modelPriors, sigma = sigma2, iterations = iterations, burnin, thin)
+                  W.mat <- out$W
+                  store.W.median[i,] <- apply(W.mat, 2, FUN=median)
+                  }
+                ### save posterior weights based on last set of initial weights
+                W.mat <- W.mat
+                Sigma.mat <- out$Sigma
+                
+                # Calculating mean absolute difference of posterior weights
+                combs <- gtools::combinations(dim(W)[1], 2)
+                store.MAD <- rep(NA,dim(combs)[1])
+                for(i in 1:dim(combs)[1]){
+                  store.MAD[i] <- mean(abs(store.W.median[combs[i,1], ] - store.W.median[combs[i,2], ]), na.rm = T)
+                  }
+                # Error if any mean absolute difference of posterior weights > 0.0001
+                if(any(store.MAD > 0.0001)){
+                  cat("WARNING: The mean absolute difference between the sets of median posterior weights is above 0.0001. \n
+                          The posterior EBMA prediction is only based on the last set of weights.")
+                  }
+              }
+              
+              ## Merge the EBMA forecasts for the calibration sample onto the predCalibration matrix
+              .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
+              postPredCal <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
+              for(i in 1:dim(W.mat)[1]){
+                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+                bmaPred <-  bmaPred/array(t(W.mat[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
+                bmaPred[,,-1] <- NA
+                postPredCal[,i] <- bmaPred[,1,]
+              }
+              ### median or mean weights for results (depending on predType) and prediction
+              if(predType == "posteriorMedian"){
+                cat("Predictive performance statistics and vector of model weights based on posterior median.")
+                W <- apply(W.mat, 2, FUN=median)
+                bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
+              }
+              if(predType == "posteriorMean"){
+                cat("Predictive performance statistics and vector of model weights based on posterior mean.")
+                W <- apply(W.mat, 2, FUN=mean)
+                bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
               }
 
-
-
-            ## Set initial values for parameters
-            if(is.null(W)){
-            W <- rep(1/(nMod), nMod) ; names(W) <- modelNames
-            }
-
-
-            ### call to rcpp for em
-            if(is.null(dim(W))){
-			        out  = emNorm(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),matrix(calResiduals2[,,1],ncol=nMod), W, tol, maxIter, const, sigma2)
-              if (out$Iterations==maxIter){print("WARNING: Maximum iterations reached")}
-              W <- out$W*rowSums(!colSums(predCalibration, na.rm=T)==0); names(W) <- modelNames
-              sigma2 = out$Sigma2
-              LL = out$LL
-              iter = out$Iterations
-            }
-
-            ## Merge the EBMA forecasts for the calibration sample onto the predCalibration matrix
-            .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
-            .sdVec <- rep(sqrt(sigma2), nMod)
-
-            if (predType=="posteriorMean"){
-              bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
-              bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
-              bmaPred[,,-1] <- NA
-            }
-
-            if (predType=="posteriorMedian"){
-              .altQBMAnormal <- function(x){
-                .x <- x[!is.na(x)]
-                .W <- W[!is.na(x)]
-                ..sdVec <- .sdVec[!is.na(x)]
-                .ebmaMedian(.W, .x, ..sdVec)
+              cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
+              if(sum(apply(W.mat, 2, mean))<=.99 || sum(apply(W.mat, 2, mean))>1.01){
+                cat("WARNING: The mean posterior model weights do not sum to approximately one. Something might be wrong.")
               }
-             bmaPred <- array(plyr::aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
-             bmaPred[,,-1] <- NA
             }
-            cal <- abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
-
-
 
             if(.testPeriod){
               if(useModelParams==TRUE){
@@ -205,25 +292,43 @@ setMethod(f="fitEnsemble",
               }
               if(useModelParams==FALSE){predTestAdj <- predTest}
               .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-
-              if (predType=="posteriorMean"){
-                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
-                bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
-                bmaPredTest[,,-1] <- NA
-              }
-
-              if (predType=="posteriorMedian"){
-                .altQBMAnormal <- function(x){
-                  .x <- x[!is.na(x)]
-                  .W <- W[!is.na(x)]
-                  ..sdVec <- .sdVec[!is.na(x)]
-                  .ebmaMedian( .W, .x, ..sdVec)
+              if(method == "EM"){
+                if (predType=="posteriorMean"){
+                  bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                  bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
+                  bmaPredTest[,,-1] <- NA
                 }
-                bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
-                bmaPredTest[,,-1] <- NA
+  
+                if (predType=="posteriorMedian"){
+                  .altQBMAnormal <- function(x){
+                    .x <- x[!is.na(x)]
+                    .W <- W[!is.na(x)]
+                    ..sdVec <- .sdVec[!is.na(x)]
+                    .ebmaMedian( .W, .x, ..sdVec)
+                  }
+                  bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
+                  bmaPredTest[,,-1] <- NA
+                }
+  
+                test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
+                }
+              if(method == "gibbs"){
+                postPredTest <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W.mat)[1])
+                for(i in 1:dim(W.mat)[1]){
+                  bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                  bmaPredTest <-  bmaPredTest/array(t(W.mat[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
+                  bmaPredTest[,,-1] <- NA
+                  postPredTest[,i] <- bmaPredTest[,1,]
+                }
+                if(predType == "posteriorMean"){
+                  bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=mean)
+                }
+                if(predType == "posteriorMedian"){
+                  bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=median)
+                }
+                test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
               }
-
-              test <- abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
+              
             }
             if(!.testPeriod){{test <- .forecastData@predTest}}
             if(useModelParams==FALSE){.models = list()}
@@ -247,8 +352,11 @@ setMethod(f="fitEnsemble",
                 iter=iter,
                 model="normal",
                 modelResults = .models,
+                posteriorWeights = W.mat,
+                posteriorSigma = Sigma.mat,
+                posteriorPredCalibration = postPredCal,
+                posteriorPredTest = postPredTest,
                 call=match.call(),
-                posteriorWeights=store.W
                 )
           }
           )

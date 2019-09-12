@@ -152,7 +152,7 @@ setMethod(f="fitEnsemble",
             ###### code block if method is "EM"
             # Runs if user specifies EM algorithm
             if(method=="EM"){
-              postPredCal <- postPredTest <- matrix()
+              postPredCal <- postPredTest <- matrix() ### empty slots only used in gibbs
               if(is.null(dim(W))){
                 out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),W,tol,maxIter, const)
                 if (out$Iterations==maxIter){cat("WARNING: Maximum iterations reached")}
@@ -210,7 +210,7 @@ setMethod(f="fitEnsemble",
             ####### code block if method is "gibbs"
             # Runs if user specifies Bayesian algorithm
             if(method=="gibbs"){
-              LL <-  iter <- numeric()
+              LL <-  iter <- numeric() ### empty slots, only used for EM
 
               #### one set starting weights
               if(is.null(dim(W))){
@@ -269,7 +269,7 @@ setMethod(f="fitEnsemble",
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
               
                 if(sum(apply(W.mat, 2, mean))<=.99 || sum(apply(W.mat, 2, mean))>1.01){
-                  cat("WARNING: The mean model weights do not sum to approximately one. Something might be wrong.")
+                  cat("WARNING: The mean posterior model weights do not sum to approximately one. Something might be wrong.")
                 }
               
             }
@@ -324,7 +324,7 @@ setMethod(f="fitEnsemble",
             if(!.testPeriod){{test <- .forecastData@predTest}}
             if(useModelParams==FALSE){.models = list()}
 
-
+  
 
 
             new("FDatFitLogit",
