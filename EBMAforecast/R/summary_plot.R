@@ -57,9 +57,6 @@ setClass(Class="SummaryForecastData",
 #'
 #' @aliases summary,FDatFitLogit-method summary,FDatFitNormal-method plot,FDatFitLogit-method plot,FDatFitNormal-method
 #' @rdname SummarizePlot
-
-
-#' @rdname SummarizePlot
 #' @export
 setMethod(
   f="summary",

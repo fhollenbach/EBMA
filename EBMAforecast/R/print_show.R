@@ -1,3 +1,6 @@
+#'@include summary_plot.R
+NULL
+
 ##
 #' Print and Show methods for forecast data
 #'

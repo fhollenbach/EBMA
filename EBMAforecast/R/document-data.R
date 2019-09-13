@@ -25,7 +25,7 @@
 #' @references Lewis-Beck, Michael S. and Charles Tien. 2008. The job of president and the jobs model forecast: Obama for '08?  \emph{PS: Political Science & Politics} \bold{41}:687-690.
 #'
 #' @references Erikson, Robert S. and Christopher Wlezien. 2008. Leading economic indicators, the polls, and the presidential vote.  \emph{PS: Political Science & Politics} \bold{41}:703-707.
-
+#'
 #' @name presidentialForecast
 #' @docType data
 NULL

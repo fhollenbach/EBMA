@@ -15,3 +15,21 @@ Imports: Rcpp (>= 1.0.2),
     	 abind,
          gtools
 LinkingTo: Rcpp
+Encoding: UTF-8
+RoxygenNote: 6.1.1
+Collate: 
+    'EBMAforecast.R'
+    'EBMApredict.R'
+    'RcppExports.R'
+    'forecastData.R'
+    'calibrateEnsemble.R'
+    'compareModels.R'
+    'document-data.R'
+    'fitEnsembleLogit.R'
+    'fitEnsembleNormal.R'
+    'makeForecastData.R'
+    'predictLogit.R'
+    'predictNormal.R'
+    'summary_plot.R'
+    'print_show.R'
+    'utility-functions.R'

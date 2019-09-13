@@ -28,7 +28,6 @@
 #'
 #' @rdname setFunctions
 #' @aliases setFunctions setPredCalibration setOutcomeCalibration setPredTest setOutcomeTest setModelNames
-
 #' @export
 setGeneric("setPredCalibration<-",function(object,value){standardGeneric("setPredCalibration<-")})
 

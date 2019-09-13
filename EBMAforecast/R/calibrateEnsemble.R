@@ -1,5 +1,6 @@
 #' @include forecastData.R
 NULL
+
 #'
 #'
 #' Calibrate an ensemble Bayesian Model Averaging model
@@ -27,7 +28,7 @@ NULL
 #' \item{outcomeCalibration}{A vector containing the true values of the dependent variable for all observations in the calibration period.}
 #' \item{outcomeTest}{An optional vector containing the true values of the dependent variable for all observations in the test period.}
 #' \item{modelNames}{A character vector containing the names of all component models.  If no model names are specified, names will be assigned automatically.}
-#' \item{modelWeights}{A vector containing model weights assigned to each model. When the gibbs sampler is used, this slot contains either the median or mean of the posterior weights, depending on the \code{predType} setting.
+#' \item{modelWeights}{A vector containing model weights assigned to each model. When the gibbs sampler is used, this slot contains either the median or mean of the posterior weights, depending on the \code{predType} setting.}
 #' \item{modelParams}{The parameters for the individual logit models that transform the component models.}
 #' \item{useModelParams}{Indicator whether model parameters for transformation were estimated or not.}
 #' \item{logLik}{The final log-likelihood for the calibrated EBMA model. Empty for estimations using the gibbs sampler.}
