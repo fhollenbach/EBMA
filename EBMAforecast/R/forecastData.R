@@ -154,11 +154,11 @@ setClass(Class="FDatFitNormal",
            model="character",
            modelResults = "list",
            useModelParams = "logical",
-           call="call", 
            posteriorWeights = "matrix",
-           posteriorSigma = "matrix",
+           posteriorSigma = "numeric",
            posteriorPredCalibration = "matrix",
-           posteriorPredTest = "matrix"
+           posteriorPredTest = "matrix",
+           call="call"
          )
 )
 
@@ -177,10 +177,10 @@ setClass(Class="FDatFitLogit",
            model="character",
            modelResults = "list",
            useModelParams = "logical",
-           call="call", 
            posteriorWeights = "matrix",
            posteriorPredCalibration = "matrix",
-           posteriorPredTest = "matrix"
+           posteriorPredTest = "matrix",     
+           call="call"
          )
 )
 

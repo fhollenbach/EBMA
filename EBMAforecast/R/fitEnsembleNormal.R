@@ -155,8 +155,8 @@ setMethod(f="fitEnsemble",
            
             #### code block for method EM
             if(method == "EM"){
-              postPredCal <- postPredTest <- W.mat <- Sigma.mat <- matrix() ### empty slots only used in gibbs
-              
+              postPredCal <- postPredTest <- W.mat <-  matrix() ### empty slots only used in gibbs
+              Sigma.mat <- numeric()
               ### if W is not a matrix, call to rcpp for em
               if(is.null(dim(W))){
                 out  = emNorm(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),matrix(calResiduals2[,,1],ncol=nMod), W, tol, maxIter, const, sigma2)
