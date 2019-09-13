@@ -29,7 +29,12 @@ setMethod(f="fitEnsemble",
             if(iterations < (burnin)){
               stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
             }
-            print(method)
+            if(method == "gibbs"){
+              cat("Model weights estimated using gibbs sampling")
+            }
+            if(method == "EM"){
+              cat("Model weights estimated using EM algorithm")
+            }
             # Creating blank store matrix
             store.W <- matrix()
             # Check if W is vector or matrix
@@ -70,7 +75,8 @@ setMethod(f="fitEnsemble",
             
             ## unless user specified, set initial values for parameters
             if(is.null(W)){
-              W <- rep(1/(nMod), nMod) ; names(W) <- modelNames
+              W <- rep(1/(nMod), nMod)
+              names(W) <- modelNames
             }
             
             .predictCal <- function(x){

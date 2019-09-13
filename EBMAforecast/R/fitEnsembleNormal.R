@@ -8,16 +8,28 @@ NULL
 #' @importFrom plyr alply aaply
 setMethod(f="fitEnsemble",
           signature(.forecastData="ForecastDataNormal"),
-          definition=function(.forecastData, tol = sqrt(.Machine$double.eps),
+          definition=function(.forecastData,
+            tol = sqrt(.Machine$double.eps),
             maxIter=1e6,
             method="EM",
             exp=numeric(),
             useModelParams = TRUE,
             predType="posteriorMedian",
             const=0,
-            modelPriors = c(),
-            W = c())
+            W = c(),
+            modelPriors = c())#,
+            #iterations = 50000,
+            #burnin = 10000)
           {
+            #if(iterations < (burnin)){
+             # stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
+            #}
+            if(method == "gibbs"){
+              cat("Model weights estimated using gibbs sampling")
+            }
+            if(method == "EM"){
+              cat("Model weights estimated using EM algorithm")
+            }
             # Creating blank store matrix
             store.W <- matrix()
             # Check if W is vector or matrix
@@ -30,7 +42,7 @@ setMethod(f="fitEnsemble",
                   stop("Each set of initial model weights must sum to 1.")}
               }
             }
-            # Vector
+            # # Vector
             if(is.null(dim(W))){
               #check wether W is of right length and sums to 1
               if(length(W) != dim(.forecastData@predCalibration)[2] & is.null(W)==FALSE){
@@ -39,6 +51,34 @@ setMethod(f="fitEnsemble",
                 stop("Vector of initial model weights must sum to 1.")}
             }
 
+            ##Extract data
+            predCalibration <- .forecastData@predCalibration; 
+            outcomeCalibration <- .forecastData@outcomeCalibration
+            predTest <- .forecastData@predTest; 
+            outcomeTest <- .forecastData@outcomeTest
+            .testPeriod <- length(predTest)>0
+            modelNames <- .forecastData@modelNames
+            
+            ## Set constants
+            nMod <-  ncol(predCalibration); 
+            nDraws <- dim(predCalibration)[3]
+            nObsCal <- nrow(predCalibration); 
+            nObsTest <- nrow(predTest)
+            ZERO<-1e-4
+            
+            
+            ## Set initial values for parameters
+            if(is.null(W)){
+              W <- rep(1/(nMod), nMod) 
+              names(W) <- modelNames
+            }
+            
+            
+            ## Set model priors if unspecified
+            if(is.null(modelPriors)){
+              modelPriors <- rep(1, nMod)
+            }
+            
             .predictCal <- function(x){
               .rawPred <- predict(x)
               .outPred <- rep(NA, nObsCal)
@@ -77,16 +117,7 @@ setMethod(f="fitEnsemble",
             }
 
 
-            ##Extract data
-            predCalibration <- .forecastData@predCalibration; outcomeCalibration <- .forecastData@outcomeCalibration
-            predTest <- .forecastData@predTest; outcomeTest <- .forecastData@outcomeTest
-            .testPeriod <- length(predTest)>0
-            modelNames <- .forecastData@modelNames
-
-            ## Set constants
-            nMod <-  ncol(predCalibration); nDraws <- dim(predCalibration)[3]
-            nObsCal <- nrow(predCalibration); nObsTest <- nrow(predTest)
-            ZERO<-1e-4
+           
 
             ## Fit Models
             if(useModelParams==TRUE){
@@ -121,20 +152,10 @@ setMethod(f="fitEnsemble",
             dimnames(calResiduals) <- dimnames(calResiduals2) <-dimnames(predCalibrationAdj) <- list(1:nObsCal, modelNames, 1:nDraws)
 
             sigma2<-1
-            
-            ## Set initial values for parameters
-            if(is.null(W)){
-              W <- rep(1/(nMod), nMod) ; names(W) <- modelNames
-            }
-            
-            
-            ## Set model priors if unspecified
-            if(is.null(modelPriors)){
-              modelPriors <- rep(1, nMod)
-            }
+           
             #### code block for method EM
             if(method == "EM"){
-              postPredCal <- postPredTest <- matrix() ### empty slots only used in gibbs
+              postPredCal <- postPredTest <- W.mat <- Sigma.mat <- matrix() ### empty slots only used in gibbs
               
               ### if W is not a matrix, call to rcpp for em
               if(is.null(dim(W))){
@@ -215,13 +236,16 @@ setMethod(f="fitEnsemble",
             }
 
             if(method == "gibbs"){
-              LL <-  iter <- sigma2 <- numeric() ### empty slots, only used for EM
+              thin = 20
+              iterations = 100000
+              burnin = 50000
+              LL <-  iter <- numeric() ### empty slots, only used for EM
               
               ### if W is not a matrix, call to rcpp for em
               if(is.null(dim(W))){
-                out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, alpha = modelPriors, sigma = sigma2, iterations = iterations, burnin, thin)
+                out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, modelPriors, sigma2, iterations = iterations, burnin, thin)
                 W.mat <- out$W
-                sigma.mat = out$Sigma
+                Sigma.mat = out$Sigma
               }
               # This is calibration based on all sets of starting weights
               # Calibrating for as many times as are different weights if is a matrix of weights input,
@@ -356,7 +380,7 @@ setMethod(f="fitEnsemble",
                 posteriorSigma = Sigma.mat,
                 posteriorPredCalibration = postPredCal,
                 posteriorPredTest = postPredTest,
-                call=match.call(),
+                call=match.call()
                 )
           }
           )
