@@ -9,10 +9,8 @@ Description: Create forecasts from multiple predictions using ensemble Bayesian 
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.2),
          plyr,
- 	 stats,
     	 graphics,		
     	 separationplot,
-         methods,
     	 Hmisc,
     	 abind,
          gtools
