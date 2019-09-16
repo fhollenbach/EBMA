@@ -202,7 +202,7 @@ Rcpp::List GibbsNormal(Rcpp::NumericVector outcome, Rcpp::NumericMatrix predicti
     if(((iterator+1) % thin == 0) and (iterator+1 > burnin)){;
       outcount += 1;
     }  
-    if ((iterator+1) % 1000 == 0 ){;
+    if ((iterator+1) % 5000 == 0 ){;
       Rcpp::Rcout << "Iteration: " << iterator+1 << std::endl;
     }
   };   

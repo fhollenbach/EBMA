@@ -33,7 +33,7 @@ NULL
 #' print(summary.object)
 #' show(summary.object)
 #'}
-#' @aliases print,SummaryForecastData-method show,SummaryForecastData-method
+#' @aliases print, SummaryForecastData-method show, SummaryForecastData-method
 #' @rdname PrintShow
 #' @export
 setMethod(

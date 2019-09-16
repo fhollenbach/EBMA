@@ -1,26 +1,6 @@
 #' @include forecastData.R
 NULL
 
-#' @export
-setClass(Class="CompareModels",
-         representation = representation(
-           fitStatistics="matrix",
-           period="character",
-           threshold="numeric",
-           baseModel="numeric"),
-         prototype=prototype(
-           fitStatistics=matrix(NA, nrow=0, ncol=0),
-           period=character(),
-           threshold=numeric(),
-           baseModel=numeric()
-           ),
-         validity=function(object){
-           if(object@period!="test" & object@period!="calibration"){
-             stop("Period must either be for 'calibration' or 'test'")
-           }
-         }
-         )
-
 ##
 #' Function for comparing multiple models based on predictive performance
 #'
@@ -65,7 +45,29 @@ setClass(Class="CompareModels",
 #' @importFrom Hmisc somers2
 #'
 #' @seealso ensembleBMA, other functions
-#' @aliases compareModels,ForecastData-method CompareModels-class
+#' @rdname compareModels
+#' @export
+setClass(Class="CompareModels",
+         representation = representation(
+           fitStatistics="matrix",
+           period="character",
+           threshold="numeric",
+           baseModel="numeric"),
+         prototype=prototype(
+           fitStatistics=matrix(NA, nrow=0, ncol=0),
+           period=character(),
+           threshold=numeric(),
+           baseModel=numeric()
+           ),
+         validity=function(object){
+           if(object@period!="test" & object@period!="calibration"){
+             stop("Period must either be for 'calibration' or 'test'")
+           }
+         }
+         )
+
+
+#' @rdname compareModels
 #' @export
 setGeneric(name="compareModels",
            def=function(.forecastData,
@@ -79,7 +81,7 @@ setGeneric(name="compareModels",
 
 
 
-
+#' @rdname compareModels
 #' @export
 setMethod(f="compareModels",
           signature(.forecastData="ForecastData"),

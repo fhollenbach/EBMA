@@ -8,9 +8,21 @@
 \alias{setPredTest}
 \alias{setOutcomeTest}
 \alias{setModelNames}
+\alias{setPredTest<-}
+\alias{setOutcomeCalibration<-}
+\alias{setOutcomeTest<-}
+\alias{setModelNames<-}
 \title{"Set" functions}
 \usage{
 setPredCalibration(object) <- value
+
+setPredTest(object) <- value
+
+setOutcomeCalibration(object) <- value
+
+setOutcomeTest(object) <- value
+
+setModelNames(object) <- value
 }
 \value{
 A data object of the class 'ForecastData' with the following slots: 

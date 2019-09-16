@@ -44,6 +44,10 @@ setMethod(f="prediction",
             exp = EBMAmodel@exp
             nObsTest = dim(Predictions)[1]
             useModelParams = EBMAmodel@useModelParams
+            
+            if(EBMAmodel@method == "gibbs"){
+              .posteriorW <- EBMAmodel@posteriorWeights
+            }
 
 
               ## Set constants
@@ -142,20 +146,22 @@ setMethod(f="prediction",
             # Runs if user specifies Bayesian algorithm
             if(method=="gibbs"){
               LL <- numeric(); iter <- numeric()
-              x1 = GibbsLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, iterations, burnin, thin)
-              W_out <- x1[["W_out"]]
-              
+
               .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
-              many.predictions2 <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(W_out)[1])
-              
-              for(i in 1:dim(W_out)[1]){
-                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W_out[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
-                bmaPredTest <-  bmaPredTest/array(t(W_out[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
+              postPredTest <- matrix(data=NA, nrow=dim(predTestAdj)[1], ncol=dim(.posteriorW)[1])
+              for(i in 1:dim(.posteriorW)[1]){
+                bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* .posteriorW[i,], na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
+                bmaPredTest <-  bmaPredTest/array(t(.posteriorW[i,]%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                 bmaPredTest[,,-1] <- NA
-                many.predictions2[,i] <- bmaPredTest[,1,]
+                postPredTest[,i] <- bmaPredTest[,1,]
               }
-              bmaPredTest[,1,] <- plyr::apply(many.predictions2, 1, FUN=median)
-              test <- abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
+              if(predType == "posteriorMean"){
+                bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=mean)
+              }
+              if(predType == "posteriorMedian"){
+                bmaPredTest[,1,] <- apply(postPredTest, 1, FUN=median)
+              }
+              test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
             }
             
             if(method=="EM"){
@@ -173,6 +179,8 @@ setMethod(f="prediction",
                 modelNames=modelNames,
                 modelWeights=W,
                 modelParams=modelParams,
+                posteriorWeights = .posteriorW,
+                posteriorPredTest = postPredTest,
                 call=match.call()
                 )
           }

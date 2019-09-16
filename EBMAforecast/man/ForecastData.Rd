@@ -15,9 +15,10 @@ Objects of class \code{ForecastData} are used in the \code{calibrateEnsemble} fu
  @slot modelNames A character vector containing the names of all component models.
 }
 \examples{
-\dontrun{ data(calibrationSample)
-
+\dontrun{ 
+data(calibrationSample)
 data(testSample)
+
 this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 .outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))
@@ -39,7 +40,4 @@ setModelNames(this.ForecastData)<-c("LMER", "SAE", "GLM")
 }
 
 
-}
-\seealso{
-ensembleBMA
 }

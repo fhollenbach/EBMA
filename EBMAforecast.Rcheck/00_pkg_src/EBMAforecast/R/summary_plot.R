@@ -55,7 +55,7 @@ setClass(Class="SummaryForecastData",
 #' summary(this.ensemble, period="test",showCoefs=FALSE)
 #'}
 #'
-#' @aliases summary,FDatFitLogit-method summary,FDatFitNormal-method plot,FDatFitLogit-method plot,FDatFitNormal-method
+#' @aliases summary,F DatFitLogit-method summary, FDatFitNormal-method summary, FDatFitNormal-method plot, FDatFitLogit-method plot, FDatFitNormal-method
 #' @rdname SummarizePlot
 #' @export
 setMethod(
@@ -83,7 +83,9 @@ setMethod(
     new("SummaryForecastData", summaryData=out)
   }
 )
+
 #' @rdname SummarizePlot
+#' @export
 setMethod(
   f="summary",
   signature="FDatFitNormal",
@@ -145,56 +147,118 @@ setMethod(
   definition=function(x, period="calibration",  subset=1,
                       mainLabel=paste("Observation", subset), xLab="Outcome", yLab="Posterior Probability", cols=2:(length(x@modelNames)+1), ... )
   {
+    if(x@method == "EM"){
+      thisDraw=1
     
-    thisDraw=1
-    
-    if(period=="calibration"){
-      .nMod <- length(x@modelNames)
-      .pred <- matrix(x@predCalibration[subset,,thisDraw], ncol=.nMod+1);  colnames(.pred) <- c("EBMA", x@modelNames)
-      .actual <- x@outcomeCalibration[subset]
-    } else{
-      .nMod <- length(x@modelNames)
-      .pred <- matrix(x@predTest[subset,,thisDraw], ncol=.nMod+1); colnames(.pred) <- c("EBMA", x@modelNames)
-      .actual <- x@outcomeTest
-    }
-    
-    .sd <- sqrt(x@variance)
-    
-    if (length(subset)>1){
-      for (j in 1:nrow(.pred)){
-        .means <- .pred[j,x@modelNames]
+      if(period=="calibration"){
+        .nMod <- length(x@modelNames)
+        .pred <- matrix(x@predCalibration[subset,,thisDraw], ncol=.nMod+1);  colnames(.pred) <- c("EBMA", x@modelNames)
+        .actual <- x@outcomeCalibration[subset]
+      } else{
+        .nMod <- length(x@modelNames)
+        .pred <- matrix(x@predTest[subset,,thisDraw], ncol=.nMod+1); colnames(.pred) <- c("EBMA", x@modelNames)
+        .actual <- x@outcomeTest
+      }
+      
+      .sd <- sqrt(x@variance)
+      
+      if (length(subset)>1){
+        for (j in 1:nrow(.pred)){
+          .means <- .pred[j,x@modelNames]
+          .miss <- is.na(.means)
+          .nModThis <- sum(!.miss)
+          .means <- .means[!.miss]
+          
+          .xMin <- min(.means)-2.5*.sd;  .xMax <- max(.means)+2.5*.sd
+          .xAxis <- seq(.xMin, .xMax, by=.01);  .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
+          W <- x@modelWeights[!.miss]
+          for(i in 1:.nModThis){ .yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i] }
+          .totals <- colSums(.yAxis)
+          plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(.totals)), main=mainLabel[j], xlab=xLab, ylab=yLab)
+          for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2,  col=cols[i])}
+          lines(.xAxis, colSums(.yAxis), lwd=2)
+          rug(.means);  rug(.pred[j,"EBMA"], lwd=3)
+          abline(v=.actual[j], lty=3)
+        }
+      } else {
+        .means <- .pred[,x@modelNames]
         .miss <- is.na(.means)
         .nModThis <- sum(!.miss)
         .means <- .means[!.miss]
-        
-        .xMin <- min(.means)-2.5*.sd;  .xMax <- max(.means)+2.5*.sd
-        .xAxis <- seq(.xMin, .xMax, by=.01);  .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
+        .xMin <- min(.means)-2.5*.sd
+        .xMax <- max(.means)+2.5*.sd
+        .xAxis <- seq(.xMin, .xMax, by=.01)
+        .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
         W <- x@modelWeights[!.miss]
-        for(i in 1:.nModThis){ .yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i] }
+        for(i in 1:.nModThis){.yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i]}
         .totals <- colSums(.yAxis)
-        plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(.totals)), main=mainLabel[j], xlab=xLab, ylab=yLab)
-        for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2,  col=cols[i])}
-        lines(.xAxis, colSums(.yAxis), lwd=2)
-        rug(.means);  rug(.pred[j,"EBMA"], lwd=3)
-        abline(v=.actual[j], lty=3)
+        plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(.totals)), main=mainLabel, xlab=xLab, ylab=yLab)
+        for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2, col=cols[i])}
+        lines(.xAxis, colSums(.yAxis))
+        rug(.means); rug(.pred[,"EBMA"], lwd=3)
+        abline(v=.actual, lty=3)
       }
-    } else {
-      .means <- .pred[,x@modelNames]
-      .miss <- is.na(.means)
-      .nModThis <- sum(!.miss)
-      .means <- .means[!.miss]
-      .xMin <- min(.means)-2.5*.sd
-      .xMax <- max(.means)+2.5*.sd
-      .xAxis <- seq(.xMin, .xMax, by=.01)
-      .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
-      W <- x@modelWeights[!.miss]
-      for(i in 1:.nModThis){.yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i]}
-      .totals <- colSums(.yAxis)
-      plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(.totals)), main=mainLabel, xlab=xLab, ylab=yLab)
-      for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2, col=cols[i])}
-      lines(.xAxis, colSums(.yAxis))
-      rug(.means); rug(.pred[,"EBMA"], lwd=3)
-      abline(v=.actual, lty=3)
+    }
+    if(x@method == "gibbs"){
+      thisDraw=1
+      
+      if(period=="calibration"){
+        .nMod <- length(x@modelNames)-1 ### not EBMA pred
+        .pred <- matrix(x@predCalibration[subset,-which(colnames(x@predCalibration)=="EBMA"),thisDraw], ncol=.nMod+1);  colnames(.pred) <- c(x@modelNames)
+        .actual <- x@outcomeCalibration[subset]
+        .posterior <- x@posteriorPredCalibration
+        if(x@predType == "posteriorMedian"){.posteriorSummary <- apply(x@posteriorPredCalibration,1,median)}
+        if(x@predType == "posteriorMean"){.posteriorSummary <- apply(x@posteriorPredCalibration,1,mean)}
+      } else{
+        .nMod <- length(x@modelNames)-1
+        .pred <- matrix(x@predTest[subset,-which(colnames(x@predCalibration)=="EBMA"),thisDraw], ncol=.nMod+1); colnames(.pred) <- c(x@modelNames)
+        .actual <- x@outcomeTest
+        .posterior <- x@posteriorPredTest
+        if(x@predType == "posteriorMedian"){.posteriorSummary <- apply(x@posteriorPredTest,1,median)}
+        if(x@predType == "posteriorMean"){.posteriorSummary <- apply(x@posteriorPredTest,1,mean)}
+      }
+      
+      .sd <- sqrt(x@variance)
+      
+      if (length(subset)>1){
+        for (j in 1:nrow(.pred)){
+          .means <- .pred[j,x@modelNames]
+          .miss <- is.na(.means)
+          .nModThis <- sum(!.miss)
+          .means <- .means[!.miss]
+          
+          .xMin <- min(.means)-2.5*.sd;  .xMax <- max(.means)+2.5*.sd
+          .xAxis <- seq(.xMin, .xMax, by=.01);  .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
+          W <- x@modelWeights[!.miss]
+          for(i in 1:.nModThis){ .yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i] }
+          .totals <- colSums(.yAxis)
+          plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(density(.posterior)$y)), main=mainLabel[j], xlab=xLab, ylab=yLab)
+          for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2,  col=cols[i])}
+          lines(density(.posterior[j,]), lwd=2)
+          rug(.means);  
+          rug(.posteriorSummary[j], lwd=3)
+          abline(v=.actual[j], lty=3)
+        }
+      } else {
+        .means <- .pred[,x@modelNames]
+        .miss <- is.na(.means)
+        .nModThis <- sum(!.miss)
+        .means <- .means[!.miss]
+        .xMin <- min(.means)-2.5*.sd
+        .xMax <- max(.means)+2.5*.sd
+        .xAxis <- seq(.xMin, .xMax, by=.01)
+        .yAxis <- matrix(NA, .nModThis, length(.xAxis)) 
+        W <- x@modelWeights[!.miss]
+        for(i in 1:.nModThis){.yAxis[i,] <- dnorm(.xAxis, mean=.means[i], sd=.sd)*W[i]}
+        .totals <- colSums(.yAxis)
+        plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(density(.posterior)$y)), main=mainLabel, xlab=xLab, ylab=yLab)
+        for(i in 1:.nModThis){lines(.xAxis, .yAxis[i,], type="l", lty=2, col=cols[i])}
+        #lines(.xAxis, colSums(.yAxis))
+        lines(density(.posterior), lwd = 2)
+        rug(.means); 
+        rug(.posteriorSummary, lwd=3)
+        abline(v=.actual, lty=3)
+      }
     }
   }
 )

@@ -18,30 +18,6 @@ library('EBMAforecast')
 base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
 cleanEx()
-nameEx("EBMAforecast-package")
-### * EBMAforecast-package
-
-flush(stderr()); flush(stdout())
-
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
-### Name: EBMAforecast-package
-### Title: A short title line describing what the package does
-### Aliases: EBMAforecast-package EBMAforecast
-### Keywords: package
-
-### ** Examples
-
-  ## Not run: 
-##D      ## Optional simple examples of the most important functions
-##D      ## These can be in \dontrun{} and \donttest{} blocks.   
-##D   
-## End(Not run)
-
-
-
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("EBMAforecast-package", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
-cleanEx()
 nameEx("EBMAforecast")
 ### * EBMAforecast
 
@@ -77,9 +53,10 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### ** Examples
 
 ## Not run: 
-##D  data(calibrationSample)
-##D 
+##D  
+##D data(calibrationSample)
 ##D data(testSample)
+##D 
 ##D this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 ##D .outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 ##D .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))
@@ -115,9 +92,9 @@ flush(stderr()); flush(stdout())
 base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: print,SummaryForecastData-method
 ### Title: Print and Show methods for forecast data
-### Aliases: print,SummaryForecastData-method
-###   show,SummaryForecastData-method print,ForecastData-method
-###   show,ForecastData-method
+### Aliases: print,SummaryForecastData-method print,
+###   SummaryForecastData-method show, show,SummaryForecastData-method
+###   print,ForecastData-method show,ForecastData-method
 
 ### ** Examples
 
@@ -150,8 +127,10 @@ flush(stderr()); flush(stdout())
 base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: summary,FDatFitLogit-method
 ### Title: Summarize and Plot Ensemble models
-### Aliases: summary,FDatFitLogit-method summary,FDatFitNormal-method
-###   plot,FDatFitLogit-method plot,FDatFitNormal-method
+### Aliases: summary,FDatFitLogit-method summary,F DatFitLogit-method
+###   summary, FDatFitNormal-method plot, FDatFitLogit-method
+###   summary,FDatFitNormal-method plot,FDatFitLogit-method
+###   plot,FDatFitNormal-method
 
 ### ** Examples
 
@@ -184,12 +163,10 @@ flush(stderr()); flush(stdout())
 base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: calibrateEnsemble
 ### Title: Calibrate an ensemble Bayesian Model Averaging model
-### Aliases: calibrateEnsemble fitEnsemble,ForecastData-method
-###   fitEnsemble,ForecastDataLogit-method
-###   fitEnsemble,ForecastDataNormal-method FDatFitLogit-class
-###   ForecastDataLogit-class ForecastDataNormal-class FDatFitNormal-class
-###   calibrateEnsemble,ForecastData-method
-### Keywords: EBMA calibrate
+### Aliases: calibrateEnsemble fitEnsemble, ForecastData-method
+###   ForecastDataLogit-method ForecastDataNormal-method,
+###   FDatFitLogit-class, ForecastDataLogit-class,
+###   ForecastDataNormal-class, FDatFitNormal-class calibrateEnsemble,
 
 ### ** Examples
 
@@ -220,8 +197,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: compareModels
 ### Title: Function for comparing multiple models based on predictive
 ###   performance
-### Aliases: compareModels compareModels,ForecastData-method
-###   CompareModels-class
+### Aliases: compareModels compareModels,
 
 ### ** Examples
 
@@ -299,6 +275,8 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Title: "Set" functions
 ### Aliases: setPredCalibration<- setFunctions setPredCalibration
 ###   setOutcomeCalibration setPredTest setOutcomeTest setModelNames
+###   setPredTest<- setOutcomeCalibration<- setOutcomeTest<-
+###   setModelNames<-
 
 ### ** Examples
 

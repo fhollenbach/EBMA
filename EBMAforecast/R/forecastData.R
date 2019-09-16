@@ -12,9 +12,10 @@
 #'
 #'
 #'
-#' @examples \dontrun{ data(calibrationSample)
-#'
+#' @examples \dontrun{ 
+#' data(calibrationSample)
 #' data(testSample)
+#' 
 #' this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 #' .outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 #' .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))
@@ -36,7 +37,6 @@
 #'}
 #'
 #'
-#' @seealso ensembleBMA
 #' @rdname ForecastData
 
 setClass(Class="ForecastData",
@@ -173,6 +173,7 @@ setClass(Class="FDatFitLogit",
            tol="numeric",
            maxIter="numeric",
            method="character",
+           predType="character",
            iter="numeric",
            model="character",
            modelResults = "list",

@@ -17,13 +17,11 @@ setMethod(f="fitEnsemble",
             predType="posteriorMedian",
             const=0,
             W = c(),
-            iterations=10000,
-            burns = 1000,
+            iterations= 40000,
+            burns = 20000,
             thinning = 20,
             modelPriors = c()
             )
-            #thin = 10)#iterations = 50000)
-            #burnin = 10000)
           {
             if(iterations < (burns)){
               stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
@@ -80,7 +78,7 @@ setMethod(f="fitEnsemble",
             
             ## Set model priors if unspecified
             if(is.null(modelPriors)){
-              modelPriors <- rep(1, nMod)
+              modelPriors <- rep(1, 1/nMod)
             }
             
             .predictCal <- function(x){
@@ -292,11 +290,13 @@ setMethod(f="fitEnsemble",
               if(predType == "posteriorMedian"){
                 cat("Predictive performance statistics and vector of model weights based on posterior median.")
                 W <- apply(W.mat, 2, FUN=median)
+                sigma2 <- median(Sigma.mat)
                 bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
               }
               if(predType == "posteriorMean"){
                 cat("Predictive performance statistics and vector of model weights based on posterior mean.")
                 W <- apply(W.mat, 2, FUN=mean)
+                sigma2 <- mean(Sigma.mat)
                 bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
               }
 
@@ -319,6 +319,7 @@ setMethod(f="fitEnsemble",
               }
               if(useModelParams==FALSE){predTestAdj <- predTest}
               .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+              
               if(method == "EM"){
                 if (predType=="posteriorMean"){
                   bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))

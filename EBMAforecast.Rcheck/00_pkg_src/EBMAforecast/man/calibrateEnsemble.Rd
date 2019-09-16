@@ -2,14 +2,15 @@
 % Please edit documentation in R/calibrateEnsemble.R
 \name{calibrateEnsemble}
 \alias{calibrateEnsemble}
-\alias{fitEnsemble,ForecastData-method}
-\alias{fitEnsemble,ForecastDataLogit-method}
-\alias{fitEnsemble,ForecastDataNormal-method}
-\alias{FDatFitLogit-class}
-\alias{ForecastDataLogit-class}
-\alias{ForecastDataNormal-class}
+\alias{fitEnsemble,}
+\alias{ForecastData-method}
+\alias{ForecastDataLogit-method}
+\alias{ForecastDataNormal-method,}
+\alias{FDatFitLogit-class,}
+\alias{ForecastDataLogit-class,}
+\alias{ForecastDataNormal-class,}
 \alias{FDatFitNormal-class}
-\alias{calibrateEnsemble,ForecastData-method}
+\alias{calibrateEnsemble,}
 \title{Calibrate an ensemble Bayesian Model Averaging model}
 \usage{
 calibrateEnsemble(.forecastData = new("ForecastData"), exp = 1,
@@ -96,5 +97,3 @@ Fraley, C., A. E. Raftery, and T. Gneiting. (2010). Calibrating multimodel forec
 \author{
 Michael D. Ward <\email{michael.d.ward@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@tamu.edu}>
 }
-\keyword{EBMA}
-\keyword{calibrate}

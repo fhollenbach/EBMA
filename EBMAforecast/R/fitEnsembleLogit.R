@@ -22,8 +22,8 @@ setMethod(f="fitEnsemble",
             predType="posteriorMedian",
             const=0,
             W = c(),
-            iterations=10000,
-            burns = 1000,
+            iterations=40000,
+            burns = 20000,
             thinning = 20)
           {
             if(iterations < (burns)){

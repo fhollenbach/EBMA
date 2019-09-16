@@ -2,14 +2,15 @@
 % Please edit documentation in R/calibrateEnsemble.R
 \name{calibrateEnsemble}
 \alias{calibrateEnsemble}
-\alias{fitEnsemble,ForecastData-method}
-\alias{fitEnsemble,ForecastDataLogit-method}
-\alias{fitEnsemble,ForecastDataNormal-method}
-\alias{FDatFitLogit-class}
-\alias{ForecastDataLogit-class}
-\alias{ForecastDataNormal-class}
+\alias{fitEnsemble,}
+\alias{ForecastData-method}
+\alias{ForecastDataLogit-method}
+\alias{ForecastDataNormal-method,}
+\alias{FDatFitLogit-class,}
+\alias{ForecastDataLogit-class,}
+\alias{ForecastDataNormal-class,}
 \alias{FDatFitNormal-class}
-\alias{calibrateEnsemble,ForecastData-method}
+\alias{calibrateEnsemble,}
 \title{Calibrate an ensemble Bayesian Model Averaging model}
 \usage{
 calibrateEnsemble(.forecastData = new("ForecastData"), exp = 1,
@@ -33,13 +34,15 @@ calibrateEnsemble(.forecastData = new("ForecastData"), exp = 1,
 
 \item{W}{A vector or matrix of initial model weights. If unspecified, each model will receive weight equal to 1/number of Models}
 
-\item{const}{user provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0.}
+\item{const}{User provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0. Only used in model estimated using EM.}
 
-\item{iterations}{The number of iterations for the Bayseian model. Default = 10000.}
+\item{modelPriors}{User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/nModels for all models.}
 
-\item{burns}{The burn in for the Gibbs sampler. Default = 1000.}
+\item{iterations}{The number of iterations for the Bayesian model. Default = 40000.}
 
-\item{thinning}{How much the Gibbs sampler is thinned. Default = 50.}
+\item{burns}{The burn in for the Gibbs sampler. Default = 20000.}
+
+\item{thinning}{How much the Gibbs sampler is thinned. Default = 20.}
 
 \item{useModelParams}{If "TRUE" individual model predictions are transformed based on logit models. If "FALSE" all models' parameters will be set to 0 and 1.}
 }
@@ -96,5 +99,3 @@ Fraley, C., A. E. Raftery, and T. Gneiting. (2010). Calibrating multimodel forec
 \author{
 Michael D. Ward <\email{michael.d.ward@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@tamu.edu}>
 }
-\keyword{EBMA}
-\keyword{calibrate}

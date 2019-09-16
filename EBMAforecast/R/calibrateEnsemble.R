@@ -15,10 +15,11 @@ NULL
 #' @param method The estimation method used. It takes either an \code{EM} or \code{gibbs} as an argument.
 #' @param predType The prediction type used for the gibbs sampling EBMA model, user can choose either \code{posteriorMedian} (default) or \code{posteriorMean}. Model performance statistics are based on the posterior median or mean forecast. Note that the posterior median forecast is not equal to the forecast based on the median posterior weight.
 #' @param W A vector or matrix of initial model weights. If unspecified, each model will receive weight equal to 1/number of Models
-#' @param const user provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0.
-#' @param iterations The number of iterations for the Bayseian model. Default = 10000.
-#' @param burns The burn in for the Gibbs sampler. Default = 1000.
-#' @param thinning How much the Gibbs sampler is thinned. Default = 50.
+#' @param const User provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0. Only used in model estimated using EM.
+#' @param modelPriors User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/nModels for all models. 
+#' @param iterations The number of iterations for the Bayesian model. Default = 40000.
+#' @param burns The burn in for the Gibbs sampler. Default = 20000.
+#' @param thinning How much the Gibbs sampler is thinned. Default = 20.
 #' @param useModelParams If "TRUE" individual model predictions are transformed based on logit models. If "FALSE" all models' parameters will be set to 0 and 1.
 #'
 #' @return Returns a data of class 'FDatFitLogit' or FDatFitNormal, a subclass of 'ForecastData', with the following slots
@@ -65,10 +66,9 @@ NULL
 #'
 #' @import abind methods stats graphics
 #'
-#' @keywords calibrate EBMA
 #'
 #' @rdname calibrateEnsemble
-#' @aliases fitEnsemble,ForecastData-method fitEnsemble,ForecastDataLogit-method fitEnsemble,ForecastDataNormal-method FDatFitLogit-class ForecastDataLogit-class  ForecastDataNormal-class FDatFitNormal-class calibrateEnsemble,ForecastData-method
+#' @aliases fitEnsemble, ForecastData-method fitEnsemble, ForecastDataLogit-method fitEnsemble, ForecastDataNormal-method, FDatFitLogit-class, ForecastDataLogit-class, ForecastDataNormal-class, FDatFitNormal-class calibrateEnsemble, ForecastData-method
 #' @export
 setGeneric(name="calibrateEnsemble",
            def=function(.forecastData=new("ForecastData"),

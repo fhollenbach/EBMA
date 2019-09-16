@@ -65,10 +65,9 @@ NULL
 #'
 #' @import abind methods stats graphics
 #'
-#' @keywords calibrate EBMA
 #'
 #' @rdname calibrateEnsemble
-#' @aliases fitEnsemble,ForecastData-method fitEnsemble,ForecastDataLogit-method fitEnsemble,ForecastDataNormal-method FDatFitLogit-class ForecastDataLogit-class  ForecastDataNormal-class FDatFitNormal-class calibrateEnsemble,ForecastData-method
+#' @aliases fitEnsemble, ForecastData-method fitEnsemble, ForecastDataLogit-method fitEnsemble, ForecastDataNormal-method, FDatFitLogit-class, ForecastDataLogit-class, ForecastDataNormal-class, FDatFitNormal-class calibrateEnsemble, ForecastData-method
 #' @export
 setGeneric(name="calibrateEnsemble",
            def=function(.forecastData=new("ForecastData"),

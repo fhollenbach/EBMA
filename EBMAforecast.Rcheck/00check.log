@@ -36,39 +36,32 @@ See sections ‘The INDEX file’ and ‘Package subdirectories’ in the
 * checking whether the namespace can be loaded with stated dependencies ... OK
 * checking whether the namespace can be unloaded cleanly ... OK
 * checking loading without being on the library search path ... OK
-* checking dependencies in R code ... NOTE
-Missing or unexported object: ‘plyr::apply’
+* checking dependencies in R code ... OK
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
 * checking R code for possible problems ... NOTE
 prediction,FDatFitLogit: no visible binding for global variable
-  ‘iterations’
-prediction,FDatFitLogit: no visible binding for global variable
-  ‘burnin’
-prediction,FDatFitLogit: no visible binding for global variable ‘thin’
+  ‘predType’
 prediction,FDatFitLogit: no visible binding for global variable
   ‘.forecastData’
+prediction,FDatFitNormal: no visible binding for global variable
+  ‘.forecastData’
 Undefined global functions or variables:
-  .forecastData burnin iterations thin
+  .forecastData predType
 * checking Rd files ... OK
-* checking Rd metadata ... WARNING
-Rd files with duplicated alias 'EBMAforecast':
-  ‘EBMAforecast-package.Rd’ ‘EBMAforecast.Rd’
-Rd files with duplicated alias 'EBMAforecast-package':
-  ‘EBMAforecast-package.Rd’ ‘EBMAforecast.Rd’
+* checking Rd metadata ... OK
 * checking Rd line widths ... OK
 * checking Rd cross-references ... OK
 * checking for missing documentation entries ... WARNING
-Undocumented code objects:
-  ‘setModelNames<-’ ‘setOutcomeCalibration<-’ ‘setOutcomeTest<-’
-  ‘setPredTest<-’
 Undocumented data sets:
   ‘calibrationSample’ ‘testLogit’ ‘testNorm’ ‘testSample’
 Undocumented S4 classes:
-  ‘SummaryForecastData’
+  ‘CompareModels’ ‘SummaryForecastData’
 Undocumented S4 methods:
   generic 'EBMApredict' and siglist 'ForecastData'
+  generic 'calibrateEnsemble' and siglist 'ForecastData'
+  generic 'compareModels' and siglist 'ForecastData'
   generic 'makeForecastData' and siglist 'ANY'
   generic 'setModelNames<-' and siglist 'ForecastData'
   generic 'setOutcomeCalibration<-' and siglist 'ForecastData'
@@ -109,4 +102,4 @@ Extensions’ manual.
 * checking compiled code ... OK
 * checking examples ... OK
 * DONE
-Status: 4 WARNINGs, 2 NOTEs
+Status: 3 WARNINGs, 1 NOTE

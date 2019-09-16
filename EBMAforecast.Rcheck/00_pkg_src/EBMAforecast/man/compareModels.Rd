@@ -2,8 +2,7 @@
 % Please edit documentation in R/compareModels.R
 \name{compareModels}
 \alias{compareModels}
-\alias{compareModels,ForecastData-method}
-\alias{CompareModels-class}
+\alias{compareModels,}
 \title{Function for comparing multiple models based on predictive performance}
 \usage{
 compareModels(.forecastData, .period = "calibration",

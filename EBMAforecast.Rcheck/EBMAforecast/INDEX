@@ -1,6 +1,4 @@
 EBMAforecast            EBMAforecast
-EBMAforecast-package    A short title line describing what the package
-                        does
 EBMApredict             EBMApredict
 ForecastData-class      An ensemble forecasting data object
 calibrateEnsemble       Calibrate an ensemble Bayesian Model Averaging

@@ -3,6 +3,12 @@
 \docType{methods}
 \name{summary,FDatFitLogit-method}
 \alias{summary,FDatFitLogit-method}
+\alias{summary,F}
+\alias{DatFitLogit-method}
+\alias{summary,}
+\alias{FDatFitNormal-method}
+\alias{plot,}
+\alias{FDatFitLogit-method}
 \alias{summary,FDatFitNormal-method}
 \alias{plot,FDatFitLogit-method}
 \alias{plot,FDatFitNormal-method}

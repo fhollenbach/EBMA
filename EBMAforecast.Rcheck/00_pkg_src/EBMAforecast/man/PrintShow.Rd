@@ -3,6 +3,9 @@
 \docType{methods}
 \name{print,SummaryForecastData-method}
 \alias{print,SummaryForecastData-method}
+\alias{print,}
+\alias{SummaryForecastData-method}
+\alias{show,}
 \alias{show,SummaryForecastData-method}
 \alias{print,ForecastData-method}
 \alias{show,ForecastData-method}

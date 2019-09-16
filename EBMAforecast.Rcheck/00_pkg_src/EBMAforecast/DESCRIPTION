@@ -19,4 +19,4 @@ Collate: 'EBMAforecast.R' 'forecastData.R' 'EBMApredict.R'
         'makeForecastData.R' 'predictLogit.R' 'predictNormal.R'
         'summary_plot.R' 'print_show.R' 'utility-functions.R'
 NeedsCompilation: yes
-Packaged: 2019-09-16 14:23:54 UTC; florianhollenbach
+Packaged: 2019-09-16 16:43:34 UTC; florianhollenbach

@@ -32,8 +32,9 @@
 #' @author  Michael D. Ward <\email{michael.d.ward@@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@@tamu.edu}>
 #'
 #' @rdname setFunctions
-#' @aliases setFunctions setPredCalibration setOutcomeCalibration setPredTest setOutcomeTest setModelNames
-#' @export
+#' @aliases setFunctions setPredCalibration setOutcomeCalibration setPredTest setOutcomeTest setModelNames setPredCalibration<-
+
+#' @rdname setFunctions
 setGeneric("setPredCalibration<-",function(object,value){standardGeneric("setPredCalibration<-")})
 
 #' @export
@@ -49,8 +50,7 @@ setReplaceMethod(
 	}
 )
 
-
-#' @export
+#' @rdname setFunctions
 setGeneric("setPredTest<-",function(object,value){standardGeneric("setPredTest<-")})
 
 #' @export
@@ -66,8 +66,7 @@ setReplaceMethod(
 	}
 )
 
-
-#' @export
+#' @rdname setFunctions
 setGeneric("setOutcomeCalibration<-",function(object,value){standardGeneric("setOutcomeCalibration<-")})
 
 #' @export
@@ -81,8 +80,7 @@ setReplaceMethod(
 	}
 )
 
-
-#' @export
+#' @rdname setFunctions
 setGeneric("setOutcomeTest<-",function(object,value){standardGeneric("setOutcomeTest<-")})
 
 #' @export
@@ -96,8 +94,7 @@ setReplaceMethod(
 	}
 )
 
-
-#' @export
+#' @rdname setFunctions
 setGeneric("setModelNames<-",function(object,value){standardGeneric("setModelNames<-")})
 
 

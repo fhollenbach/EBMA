@@ -292,11 +292,13 @@ setMethod(f="fitEnsemble",
               if(predType == "posteriorMedian"){
                 cat("Predictive performance statistics and vector of model weights based on posterior median.")
                 W <- apply(W.mat, 2, FUN=median)
+                sigma2 <- median(Sigma.mat)
                 bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
               }
               if(predType == "posteriorMean"){
                 cat("Predictive performance statistics and vector of model weights based on posterior mean.")
                 W <- apply(W.mat, 2, FUN=mean)
+                sigma2 <- mean(Sigma.mat)
                 bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
               }
 
@@ -319,6 +321,7 @@ setMethod(f="fitEnsemble",
               }
               if(useModelParams==FALSE){predTestAdj <- predTest}
               .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
+              
               if(method == "EM"){
                 if (predType=="posteriorMean"){
                   bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
