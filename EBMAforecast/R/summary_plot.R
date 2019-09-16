@@ -1,6 +1,7 @@
 #' @include forecastData.R
 NULL
 
+#' @rdname SummarizePlot
 #' @export
 setClass(Class="SummaryForecastData",
          representation=representation(
@@ -28,10 +29,7 @@ setClass(Class="SummaryForecastData",
 #' @param yLab The label for the y-axis.  Only implemented for the subclass "FDatFitNormal"
 #' @param cols A vector containing the color for plotting the predictive PDF of each component model forecast. The default is a unique color for each PDF. Only implemented for the subclass "FDatFitNormal" 
 #' @param ... Not implemented
-#' @method summary FDatFitLogit
-#' @method summary FDatFitNormal
-#' @method plot FDatFitLogit
-#' @method plot FDatFitNormal
+
 #'
 #' @return Either a plot or a data object of the class 'SummaryForecastData'. The data object has the following slots:
 #' \item{summaryData}{Under the default, the function produces a matrix containing one row for each model plus one row for the EBMA forecast.  The first column is always the model weights assigned to the component models.  The second and third columns display the model parameters for the transformation of the component models.  The remaining columns are the requested fit statistics for all models, as calculated by the \code{copareModels} function.  If \code{showCoefs=FALSE}, then the model parameters will not be shown.}
@@ -55,7 +53,6 @@ setClass(Class="SummaryForecastData",
 #' summary(this.ensemble, period="test",showCoefs=FALSE)
 #'}
 #'
-#' @aliases summary,F DatFitLogit-method summary, FDatFitNormal-method summary, FDatFitNormal-method plot, FDatFitLogit-method plot, FDatFitNormal-method
 #' @rdname SummarizePlot
 #' @export
 setMethod(

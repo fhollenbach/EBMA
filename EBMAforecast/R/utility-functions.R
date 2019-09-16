@@ -7,6 +7,9 @@
 #' @method set setOutcomeTest
 #' @method set setModelNames
 #' 
+#' @param object The object to which values are assigned.
+#' @param value Values to be assigned.
+#' 
 #' @examples
 #' 
 #' \dontrun{
@@ -32,11 +35,11 @@
 #' @author  Michael D. Ward <\email{michael.d.ward@@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@@tamu.edu}>
 #'
 #' @rdname setFunctions
-#' @aliases setFunctions setPredCalibration setOutcomeCalibration setPredTest setOutcomeTest setModelNames setPredCalibration<-
 
 #' @rdname setFunctions
 setGeneric("setPredCalibration<-",function(object,value){standardGeneric("setPredCalibration<-")})
 
+#' @rdname setFunctions
 #' @export
 setReplaceMethod(
 	f="setPredCalibration",
@@ -53,6 +56,7 @@ setReplaceMethod(
 #' @rdname setFunctions
 setGeneric("setPredTest<-",function(object,value){standardGeneric("setPredTest<-")})
 
+#' @rdname setFunctions
 #' @export
 setReplaceMethod(
 	f="setPredTest",
@@ -69,6 +73,7 @@ setReplaceMethod(
 #' @rdname setFunctions
 setGeneric("setOutcomeCalibration<-",function(object,value){standardGeneric("setOutcomeCalibration<-")})
 
+#' @rdname setFunctions
 #' @export
 setReplaceMethod(
 	f="setOutcomeCalibration",
@@ -83,6 +88,7 @@ setReplaceMethod(
 #' @rdname setFunctions
 setGeneric("setOutcomeTest<-",function(object,value){standardGeneric("setOutcomeTest<-")})
 
+#' @rdname setFunctions
 #' @export
 setReplaceMethod(
 	f="setOutcomeTest",
@@ -97,7 +103,7 @@ setReplaceMethod(
 #' @rdname setFunctions
 setGeneric("setModelNames<-",function(object,value){standardGeneric("setModelNames<-")})
 
-
+#' @rdname setFunctions
 #' @export
 setReplaceMethod(
 	f="setModelNames",

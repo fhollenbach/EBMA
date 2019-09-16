@@ -7,11 +7,11 @@ NULL
 #' Function allows users to create new predictions given an already estimated EBMA model
 #' This function produces predictions based on EBMA model weights and component model predictions.
 #'
-#' @param EBMAmodel Output of estimated EBMA model 
+#' 
+#' @param EBMAmodel An estimated EBMA model object
 #' @param Predictions A matrix with a column for each component model's predictions.
 #' @param Outcome An optional vector containing the true values of the dependent variable for all observations in the test period. 
 #' @param ... Not implemented
-#'
 #'
 #' @return Returns a data of class 'FDatFitLogit' or FDatFitNormal, a subclass of 'ForecastData', with the following slots:
 #' \item{predTest}{A matrix containing the predictions of all component models and the EBMA model for all observations in the test period.}
@@ -36,7 +36,7 @@ setGeneric(name="EBMApredict",
            {standardGeneric("EBMApredict")}
 )
 
-
+#' @rdname EBMApredict
 #' @export
 setMethod(f="EBMApredict",
           signature="ForecastData",
@@ -44,7 +44,6 @@ setMethod(f="EBMApredict",
             EBMAmodel, 
             Predictions,
             Outcome = NULL,
-            method="EM",
             ...)
           {
             switch(EBMAmodel@model,

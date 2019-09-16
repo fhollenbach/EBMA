@@ -58,6 +58,7 @@ setGeneric(name="makeForecastData",
            {standardGeneric("makeForecastData")}
            )
 
+#' @rdname makeForecastData
 #' @export
 setMethod(f="makeForecastData",
           definition=function(
@@ -104,6 +105,7 @@ setMethod(f="makeForecastData",
           }
           )
 
+#' @rdname PrintShow
 #' @export
 setMethod(
 		f="print",
@@ -129,6 +131,7 @@ setMethod(
 			}
 			)
 
+#' @rdname PrintShow
 #' @export
 setMethod(
 		f="show",

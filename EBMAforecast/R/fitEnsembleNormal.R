@@ -16,11 +16,11 @@ setMethod(f="fitEnsemble",
             useModelParams = TRUE,
             predType="posteriorMedian",
             const=0,
-            W = c(),
+            W = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
             iterations= 40000,
             burns = 20000,
             thinning = 20,
-            modelPriors = c()
+            modelPriors = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2])
             )
           {
             if(iterations < (burns)){

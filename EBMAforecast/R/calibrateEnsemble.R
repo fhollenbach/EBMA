@@ -21,6 +21,7 @@ NULL
 #' @param burns The burn in for the Gibbs sampler. Default = 20000.
 #' @param thinning How much the Gibbs sampler is thinned. Default = 20.
 #' @param useModelParams If "TRUE" individual model predictions are transformed based on logit models. If "FALSE" all models' parameters will be set to 0 and 1.
+#' @param ... Not implemented 
 #'
 #' @return Returns a data of class 'FDatFitLogit' or FDatFitNormal, a subclass of 'ForecastData', with the following slots
 #' \item{predCalibration}{A matrix containing the predictions of all component models and the EBMA model for all observations in the calibration period. Under gibbs sampling, the EBMA prediction is either the median or mean of the posterior predictive distribution, depending on the \code{predType} setting.}
@@ -53,22 +54,25 @@ NULL
 #' @references Sloughter, J. M., T. Gneiting and A. E. Raftery. (2010). Probabilistic wind speed forecasting using ensembles and Bayesian model averaging. \emph{Journal of the American Statistical Association}. \bold{105}:25--35.
 #' @references Fraley, C., A. E. Raftery, and T. Gneiting. (2010). Calibrating multimodel forecast ensembles with exchangeable and missing members using Bayesian model averaging. \emph{Monthly Weather Review}. \bold{138}:190--202.
 #'
-#' @examples \dontrun{data(calibrationSample)
+#' @examples \dontrun{
+#' data(calibrationSample)
 #'
 #' data(testSample)
 #'
 #' this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 #'.outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 #' .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))
+#' initW <- rep(1/3,3)
+#' 
+#' this.ensemble.em <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.001)
 #'
-#' this.ensemble <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.001, exp=3)
+#' this.ensemble.gibbs <- calibrateEnsemble(this.ForecastData, model="logit", method = "gibbs")
 #'}
 #'
 #' @import abind methods stats graphics
 #'
 #'
 #' @rdname calibrateEnsemble
-#' @aliases fitEnsemble, ForecastData-method fitEnsemble, ForecastDataLogit-method fitEnsemble, ForecastDataNormal-method, FDatFitLogit-class, ForecastDataLogit-class, ForecastDataNormal-class, FDatFitNormal-class calibrateEnsemble, ForecastData-method
 #' @export
 setGeneric(name="calibrateEnsemble",
            def=function(.forecastData=new("ForecastData"),
@@ -77,12 +81,20 @@ setGeneric(name="calibrateEnsemble",
              maxIter=1e6,
              model="logit",
              method="EM",
+             predType = "posteriorMedian",
+             useModelParams = TRUE,
+             W = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
+             const = 0,
+             modelPriors = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
+             iterations = 40000,
+             burns = 20000,
+             thinning = 20,
              ...)
            {standardGeneric("calibrateEnsemble")}
            )
 
 
-
+#' @rdname calibrateEnsemble
 #' @export
 setMethod(f="calibrateEnsemble",
           signature="ForecastData",
@@ -93,6 +105,14 @@ setMethod(f="calibrateEnsemble",
             maxIter=1e6,
             model="logit",
             method="EM",
+            predType = "posteriorMedian",
+            useModelParams = TRUE,
+            W = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
+            const = 0,
+            modelPriors = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
+            iterations = 40000,
+            burns = 20000,
+            thinning = 20,
             ...)
           {
             switch(model,
@@ -106,6 +126,14 @@ setMethod(f="calibrateEnsemble",
                              tol=tol,
                              maxIter=maxIter,
                              method=method,
+                             useModelParams = useModelParams,
+                             predType = predType,
+                             W = W,
+                             const = const,
+                             modelPriors = modelPriors,
+                             iterations = iterations,
+                             burns = burns,
+                             thinning = thinning,
                              ...), parent.frame())
           }
           )

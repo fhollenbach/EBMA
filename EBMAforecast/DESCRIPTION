@@ -28,6 +28,7 @@ Collate:
     'document-data.R'
     'fitEnsembleLogit.R'
     'fitEnsembleNormal.R'
+    'global.R'
     'makeForecastData.R'
     'predictLogit.R'
     'predictNormal.R'

@@ -26,10 +26,43 @@
 #'
 #' @references Erikson, Robert S. and Christopher Wlezien. 2008. Leading economic indicators, the polls, and the presidential vote.  \emph{PS: Political Science & Politics} \bold{41}:703-707.
 #'
-#' @name presidentialForecast
+#' @rdname presidentialForecast
 #' @docType data
-NULL
+"presidentialForecast"
 
 
+#' Sample data Insurgency Predictions
+#'
+#' This includes the data for the predictions of insurgencies in 29 countries for 2010. 
+#' 
+#' The predictions included in the dataset are:
+#' \itemize{
+#' \item\code{LMER} Predictions from a generalized linear mixed effects model using a logistic link function and including a randomeffects term for lagged GDP per capita and the lagged number of conflictual events involving the United States in the country of interest. 
+#' \item\code{SAE} Predictions from a one model developed as part of the ICEWS project and was designed by Strategic Analysis Enterprises.
+#' \item\code{GLM} Predictions from a crude logistic model that includes only population size, GDP growth (both lagged 3 months), the number of minority groups at risk in the country, and a measure of anocracy supplied in the Polity IV data set.
+#'}
+#' More detail about each model can be found in Mongomery et al. (2012)
+#' 
+#' @references Montgomery, Jacob M., Florian M. Hollenbach and Michael D. Ward. (2012). Improving Predictions Using Ensemble Bayesian Model Averaging.  \emph{Political Analysis}. \bold{20}: 271-291.
+#'
+#' @examples \dontrun{
+#' data(calibrationSample)
+#' data(testSample)
+#'
+#' this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
+#'.outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
+#' .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))
+#' initW <- rep(1/3,3)
+#' 
+#' this.ensemble.em <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.001)
+#'
+#' this.ensemble.gibbs <- calibrateEnsemble(this.ForecastData, model="logit", method = "gibbs")
+#'}
+#'
+#' @rdname InsurgencyPredictions
+#' @docType data
+"calibrationSample"
 
+#' @rdname InsurgencyPredictions
+"testSample"
 

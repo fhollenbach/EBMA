@@ -4,6 +4,10 @@
 \name{presidentialForecast}
 \alias{presidentialForecast}
 \title{Sample data Presidential Election}
+\format{An object of class \code{data.frame} with 15 rows and 7 columns.}
+\usage{
+presidentialForecast
+}
 \description{
 This includes the data for the presidential election forecasting example in Montgomery, Hollenbach and Ward (2012). The data ranges from 1952 to 2008 and includes predictions for the six different component models included in the Ensemble model. Users may split the sample into calibration and test sample.
 }
@@ -34,3 +38,4 @@ Lewis-Beck, Michael S. and Charles Tien. 2008. The job of president and the jobs
 
 Erikson, Robert S. and Christopher Wlezien. 2008. Leading economic indicators, the polls, and the presidential vote.  \emph{PS: Political Science & Politics} \bold{41}:703-707.
 }
+\keyword{datasets}

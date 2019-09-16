@@ -9,8 +9,8 @@ NULL
 #' @param object An object of the class 'ForecastData' or 'SummaryForecastData'.
 #' @param x An object of the class 'ForecastData' or 'SummaryForecastData'.
 #' @param digits An integer specifying the number of significant digits to print. The default is 3.
+#' @param ... Not implemented
 #'
-#' @method show SummaryForecastData
 #'
 #' @return NULL
 #' 
@@ -33,7 +33,6 @@ NULL
 #' print(summary.object)
 #' show(summary.object)
 #'}
-#' @aliases print, SummaryForecastData-method show, SummaryForecastData-method
 #' @rdname PrintShow
 #' @export
 setMethod(
