@@ -8,11 +8,16 @@
 #' @method set setModelNames
 #' 
 #' @examples
+#' 
+#' \dontrun{
+#' data(calibrationSample)
+#' data(testSample)
 #' setPredCalibration(this.ForecastData)<-calibrationSample[,c("LMER", "SAE", "GLM")]
 #' setOutcomeCalibration(this.ForecastData)<-calibrationSample[,"Insurgency"]
 #' setPredTest(this.ForecastData)<-testSample[,c("LMER", "SAE", "GLM")]
 #' setOutcomeTest(this.ForecastData)<-testSample[,"Insurgency"]
 #' setModelNames(this.ForecastData)<-c("LMER", "SAE", "GLM")
+#' }
 #' 
 #' @return A data object of the class 'ForecastData' with the following slots: 
 #' \item{predCalibration}{An array containing the predictions of all component models for all observations in the calibration period.} 

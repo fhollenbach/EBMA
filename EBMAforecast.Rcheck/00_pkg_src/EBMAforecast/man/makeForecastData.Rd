@@ -34,9 +34,10 @@ A data object of the class 'ForecastData' with the following slots:
 This function uses the component model forecasts and dependent variable observations provided by the user to create an object of class \code{ForecastData}, which can then be used to calibrate and fit the ensemble. Individual slots of the \code{ForecastData} object can be accessed and changed using the \code{get} and \code{set} functions respectively. Missing predictions are allowed in the calibration set.
 }
 \examples{
- data(calibrationSample)
 
-\dontrun{data(testSample)
+\dontrun{
+data(calibrationSample)
+data(testSample)
 this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 .outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))

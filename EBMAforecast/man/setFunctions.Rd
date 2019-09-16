@@ -24,11 +24,16 @@ A data object of the class 'ForecastData' with the following slots:
 To assign individual slots, use set functions
 }
 \examples{
+
+\dontrun{
+data(calibrationSample)
+data(testSample)
 setPredCalibration(this.ForecastData)<-calibrationSample[,c("LMER", "SAE", "GLM")]
 setOutcomeCalibration(this.ForecastData)<-calibrationSample[,"Insurgency"]
 setPredTest(this.ForecastData)<-testSample[,c("LMER", "SAE", "GLM")]
 setOutcomeTest(this.ForecastData)<-testSample[,"Insurgency"]
 setModelNames(this.ForecastData)<-c("LMER", "SAE", "GLM")
+}
 
 }
 \references{

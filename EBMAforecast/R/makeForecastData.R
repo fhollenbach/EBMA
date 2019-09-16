@@ -20,9 +20,11 @@ NULL
 #' \item{modelNames}{A character vector containing the names of all component models.  If no model names are specified, names will be assigned automatically.}
 #'
 #'
-#' @examples  data(calibrationSample)
+#' @examples 
 #'
-#' \dontrun{data(testSample)
+#' \dontrun{
+#' data(calibrationSample)
+#' data(testSample)
 #' this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
 #' .outcomeCalibration=calibrationSample[,"Insurgency"],.predTest=testSample[,c("LMER", "SAE", "GLM")],
 #' .outcomeTest=testSample[,"Insurgency"], .modelNames=c("LMER", "SAE", "GLM"))

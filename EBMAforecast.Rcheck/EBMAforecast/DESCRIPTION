@@ -19,5 +19,5 @@ Collate: 'EBMAforecast.R' 'forecastData.R' 'EBMApredict.R'
         'makeForecastData.R' 'predictLogit.R' 'predictNormal.R'
         'summary_plot.R' 'print_show.R' 'utility-functions.R'
 NeedsCompilation: yes
-Packaged: 2019-09-16 14:08:22 UTC; florianhollenbach
-Built: R 3.6.1; x86_64-apple-darwin18.6.0; 2019-09-16 14:08:28 UTC; unix
+Packaged: 2019-09-16 14:23:54 UTC; florianhollenbach
+Built: R 3.6.1; x86_64-apple-darwin18.6.0; 2019-09-16 14:24:00 UTC; unix
