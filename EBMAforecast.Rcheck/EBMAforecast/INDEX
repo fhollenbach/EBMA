@@ -1,0 +1,16 @@
+EBMAforecast            EBMAforecast
+EBMAforecast-package    A short title line describing what the package
+                        does
+EBMApredict             EBMApredict
+ForecastData-class      An ensemble forecasting data object
+calibrateEnsemble       Calibrate an ensemble Bayesian Model Averaging
+                        model
+compareModels           Function for comparing multiple models based on
+                        predictive performance
+makeForecastData        Build a ensemble forecasting data object
+presidentialForecast    Sample data Presidential Election
+print,SummaryForecastData-method
+                        Print and Show methods for forecast data
+setPredCalibration<-    "Set" functions
+summary,FDatFitLogit-method
+                        Summarize and Plot Ensemble models

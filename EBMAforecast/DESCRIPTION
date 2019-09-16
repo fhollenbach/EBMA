@@ -13,15 +13,16 @@ Imports: Rcpp (>= 1.0.2),
     	 separationplot,
     	 Hmisc,
     	 abind,
-         gtools
+         gtools,
+	 methods	
 LinkingTo: Rcpp
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Collate: 
     'EBMAforecast.R'
+    'forecastData.R'
     'EBMApredict.R'
     'RcppExports.R'
-    'forecastData.R'
     'calibrateEnsemble.R'
     'compareModels.R'
     'document-data.R'
