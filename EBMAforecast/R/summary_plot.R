@@ -234,7 +234,7 @@ setMethod(
           if(x@predType == "posteriorMedian"){.posteriorSummary <- median(.posteriorPred)}
           if(x@predType == "posteriorMean"){.posteriorSummary <- mean(.posteriorPred)}
           #.totals <- colSums(.yAxis)
-          plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(c(density(.posterior)$y,.maxima))), main=mainLabel[j], xlab=xLab, ylab=yLab)
+          plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(c(density(.posteriorPred)$y,.maxima))), main=mainLabel[j], xlab=xLab, ylab=yLab)
           for(i in 1:.nModThis){lines(density(.yAxis[i,]), type="l", lty=2,  col=cols[i])}
           lines(density(.posteriorPred), lwd=2)
           rug(.means);  
@@ -259,7 +259,7 @@ setMethod(
         if(x@predType == "posteriorMedian"){.posteriorSummary <- median(.posteriorPred)}
         if(x@predType == "posteriorMean"){.posteriorSummary <- mean(.posteriorPred)}
         #.totals <- colSums(.yAxis)
-        plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(c(density(.posterior)$y,.maxima))), main=mainLabel, xlab=xLab, ylab=yLab)
+        plot(NULL, xlim=c(.xMin, .xMax), ylim=c(0,max(c(density(.posteriorPred)$y,.maxima))), main=mainLabel, xlab=xLab, ylab=yLab)
         for(i in 1:.nModThis){lines(density(.yAxis[i,]), type="l", lty=2,  col=cols[i])}
         lines(density(.posteriorPred), lwd=2)
         rug(.means);  
