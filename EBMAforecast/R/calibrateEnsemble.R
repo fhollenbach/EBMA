@@ -16,7 +16,7 @@ NULL
 #' @param predType The prediction type used for the gibbs sampling EBMA model, user can choose either \code{posteriorMedian} (default) or \code{posteriorMean}. Model performance statistics are based on the posterior median or mean forecast. Note that the posterior median forecast is not equal to the forecast based on the median posterior weight.
 #' @param W A vector or matrix of initial model weights. If unspecified, each model will receive weight equal to 1/number of Models
 #' @param const User provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0. Only used in model estimated using EM.
-#' @param modelPriors User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/nModels for all models. 
+#' @param modelPriors User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/n Models for all models. 
 #' @param iterations The number of iterations for the Bayesian model. Default = 40000.
 #' @param burns The burn in for the Gibbs sampler. Default = 20000.
 #' @param thinning How much the Gibbs sampler is thinned. Default = 20.
