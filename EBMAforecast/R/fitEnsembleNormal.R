@@ -126,9 +126,9 @@ setMethod(f="fitEnsemble",
               .models <- plyr::alply(predCalibration, 2:3, .fun=.modelFitter)
               for(i in 1:nMod){
                 if(any(unname(.models[[i]][[2]]) > 0.5)){
-                  cat("Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
+                  cat("WARNING: Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
                       which(unname(.models[[i]][[2]]) > 0.5), "\n")
-                  warning("Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
+                  #warning("Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
                 }
                 .models[[i]] <- .models[[i]][[1]]
               }
