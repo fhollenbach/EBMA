@@ -5,3 +5,12 @@
 src/*.o
 src/*.so
 src/*.dll
+EBMAforecast/.Rproj.user
+EBMAforecast/.Rhistory
+EBMAforecast/.RData
+EBMAforecast/.Ruserdata
+EBMAforecast/src/*.o
+EBMAforecast/src/*.so
+EBMAforecast/src/*.dll
+*.so
+*.o

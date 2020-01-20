@@ -4,6 +4,7 @@ data(testSample)
 data(presidentialForecast)
 data(simulatedNormData)
 data(simulatedLogitData)
+library(ensembleBMA)
 
 
 	context("Test if predictions between 0 and 1")
