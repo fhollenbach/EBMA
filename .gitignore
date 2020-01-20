@@ -14,3 +14,6 @@ EBMAforecast/src/*.so
 EBMAforecast/src/*.dll
 *.so
 *.o
+EBMAforecast/src/EBMAforecast.so
+EBMAforecast/src/RcppExports.o
+EBMAforecast/src/Samplers.o

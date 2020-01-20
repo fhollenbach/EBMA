@@ -47,7 +47,7 @@ calibrateEnsemble(.forecastData = new("ForecastData"), exp = 1,
 
 \item{const}{User provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0. Only used in model estimated using EM.}
 
-\item{modelPriors}{User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/nModels for all models.}
+\item{modelPriors}{User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/n Models for all models.}
 
 \item{iterations}{The number of iterations for the Bayesian model. Default = 40000.}
 

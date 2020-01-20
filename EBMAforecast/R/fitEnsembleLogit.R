@@ -124,7 +124,7 @@ setMethod(f="fitEnsemble",
                 if(any(unname(.models[[i]][[2]]) > 0.5)){
                 cat("WARNING: Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
                     which(unname(.models[[i]][[2]]) > 0.5), "\n")
-                cat("WARNING: Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
+                #cat("WARNING: Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
                 }
                 .models[[i]] <- .models[[i]][[1]]
               }

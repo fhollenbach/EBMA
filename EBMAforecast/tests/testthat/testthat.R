@@ -582,8 +582,7 @@ test_that("EBMApredict for logit EBMA model,model parameters FALSE",{
   check1 <- calibrateEnsemble(this.ForecastData,model="logit",exp=3,useModelParams=FALSE)
   newPred = EBMApredict(check1,new.pred)
   test_pred2 = EBMApredict(check1,this.ForecastData@predTest,Outcome=this.ForecastData@outcomeTest)
-  test_pred2 = EBMApredict(check1,this.ForecastData@predTest)
-  
+
   expect_that(as.numeric(test_pred2@predTest[,1,]),equals(as.numeric(check1@predTest[,1,])))
   
 })
@@ -616,66 +615,3 @@ test_that("Warning for outcomeCalibration percentage of 0s or 1s less than 10%",
                                .modelNames=c("LMER", "SAE", "GLM")), gives_warning())
 })
 
-context("Test if Cooks Distance's are greater than .5")
-test_that("Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').",{
-  expect_that(fitEnsemble(calibrateEnsemble(makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
-                                                             .outcomeCalibration=calibrationSample[,"Insurgency"],
-                                                             .predTest=testSample[,c("LMER", "SAE", "GLM")],
-                                                             .outcomeTest=testSample[,"Insurgency"],
-                                                             .modelNames=c("LMER", "SAE", "GLM")))), gives_warning(), model="logit", tol=0.0001, maxIter=25000, exp=3, gives_warning())
-})
-
-
-# 
-# 
-# source("EBMAforecast/data/simulatedNormData.R")
-#   expect_equal(.5, thisEnsemble@modelWeights[1], tolerance = .1)
-#}
-#)
-  
-# testing if the normal ensemble works for predetermined weights
-context("Test how close the normal model gets to 50/50 for the first two weights")
-test_that("Normal model gives similar results when weights are determined", {
-test.forecasts <- testNorm[, -7]
-testObserved <- testNorm[, 7]
-n <- dim(test.forecasts)[1]
-test.ForecastData<-makeForecastData(.predCalibration=test.forecasts[c(1:(n)-1),],
-                                    .outcomeCalibration=testObserved[c(1:(n)-1)],
-                                    .predTest=test.forecasts[(n),],
-                                    .outcomeTest=testObserved[(n)],
-                                    .modelNames=c("Campbell", "Lewis-Beck","EWT2C2","Fair","Hibbs","Abramowitz"))
-thisEnsemble<-calibrateEnsemble(test.ForecastData, model="normal", useModelParams=FALSE, tol=0.000000001)
-  expect_equal(.5, as.numeric(thisEnsemble@modelWeights[1]), tolerance = .1, scale = 1)
-  expect_equal(.5, as.numeric(thisEnsemble@modelWeights[2]), tolerance = .1, scale = 1)
-  
-}
-)
-
-# testing if the logit ensemble works for predetermined weights
-context("Test how close the logit model gets to 50/50 for the first two weights")
-test_that("Logit model gives similar results when weights are determined", {
- this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
-                                       .outcomeCalibration=testLogit,
-                                       .predTest=testSample[,c("LMER", "SAE", "GLM")],
-                                       .outcomeTest=testSample[,"Insurgency"],
-                                       .modelNames=c("LMER", "SAE", "GLM"))
- this.ensemble <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.0001, maxIter=25000, exp=3)
- expect_equal(.5, as.numeric(this.ensemble@modelWeights[1]), tolerance = .1, scale = 1)
- expect_equal(.5, as.numeric(this.ensemble@modelWeights[2]), tolerance = .1, scale = 1)
-}
-)
-
-# testing if the logit ensemble works for predetermined weights
-context("Test how close the logit model gets to 50/50 for the first two weights")
-test_that("Logit model gives similar results when weights are determined", {
-  this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LMER", "SAE", "GLM")],
-                                        .outcomeCalibration=testLogit,
-                                        .predTest=testSample[,c("LMER", "SAE", "GLM")],
-                                        .outcomeTest=testSample[,"Insurgency"],
-                                        .modelNames=c("LMER", "SAE", "GLM"))
-  
-  this.ensemble <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.0001, maxIter=25000, exp=3, method = "gibbs")
-  expect_equal(.5, as.numeric(median(this.ensemble@posteriorWeights[,1])), tolerance = .1, scale = 1)
-  expect_equal(.5, as.numeric(median(this.ensemble@posteriorWeights[,2])), tolerance = .1, scale = 1)
-}
-)
