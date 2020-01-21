@@ -1,6 +1,6 @@
 Package: EBMAforecast
 Type: Package
-Title: Estimate Ensemble Bayesian Model Averaging forecasts using Gibbs Sampling or EM-Algorithms
+Title: Estimate Ensemble Bayesian Model Averaging Forecasts using Gibbs Sampling or EM-Algorithms
 Version: 1.1.0
 Date: 2019-09-11
 Author: Florian M. Hollenbach, Jacob Montgomery, and Michael D. Ward

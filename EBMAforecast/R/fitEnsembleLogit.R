@@ -33,6 +33,9 @@ setMethod(f="fitEnsemble",
             if(method == "gibbs"){
               cat("Model weights estimated using gibbs sampling")
             }
+            if(method == "gibbs" & any(is.na(.forecastData@predCalibration))){
+              stop("Missing values in the calibration set are currently only allowed with EM estimation.")
+            }
             if(method == "EM"){
               cat("Model weights estimated using EM algorithm")
             }
@@ -159,7 +162,7 @@ setMethod(f="fitEnsemble",
             ###### code block if method is "EM"
             # Runs if user specifies EM algorithm
             if(method=="EM"){
-              postPredCal <- postPredTest <- matrix() ### empty slots only used in gibbs
+              postPredCal <- postPredTest <- W.mat <- matrix() ### empty slots only used in gibbs
               if(is.null(dim(W))){
                 out  = emLogit(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod),W,tol,maxIter, const)
                 if (out$Iterations==maxIter){cat("WARNING: Maximum iterations reached")}
@@ -301,7 +304,6 @@ setMethod(f="fitEnsemble",
 
               # Runs if user specifies EM algorithm
               if(method=="EM"){
-                W.mat <- matrix()
                 .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
                 bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                 bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
@@ -328,7 +330,10 @@ setMethod(f="fitEnsemble",
                 test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
               }
             }
-            if(!.testPeriod){{test <- .forecastData@predTest}}
+            if(!.testPeriod){
+              {test <- .forecastData@predTest}
+              {postPredTest <- matrix()}
+              }
             if(useModelParams==FALSE){.models = list()}
 
   

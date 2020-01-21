@@ -1,9 +1,8 @@
 # load datasets
 data(calibrationSample)
-data(testSample)
 data(presidentialForecast)
-data(simulatedNormData)
-data(simulatedLogitData)
+data(testSample)
+
 library(ensembleBMA)
 
 
@@ -468,7 +467,7 @@ test_that("same result as in Raftery",{
    fit.eBMA <- ensembleBMAnormal(my.E.data, trainingDays=train.years, dates=pred.date, minCRPS=FALSE,
                               control=controlBMAnormal(biasCorrection="none",tol=0.00000001))
 my.data<-makeForecastData(.predCalibration=full.forecasts[c(1:14),],.outcomeCalibration=full.observed[c(1:14)],.predTest=full.forecasts[15,],.outcomeTest=full.observed[15], c("Campbell", "Lewis-Beck","EWT2C2","Fair","Hibbs","Abramowitz"))
-check13<-calibrateEnsemble(my.data, model="normal", maxIter=25000,useModelPara=FALSE,tol=0.00000001)
+check13<-calibrateEnsemble(my.data, model="normal", maxIter=25000,useModelPara=FALSE,tol=0.00000001, method = "EM")
 ## this needs to be fixed
 check2<-as.numeric(round(as.matrix(check13@modelWeights),3))
 expect_that(as.numeric(round(as.matrix(fit.eBMA$weights),3)),equals(check2))
@@ -493,13 +492,13 @@ this.ForecastData <- makeForecastData(.predCalibration=calibrationSample[,c("LME
                                                                  .outcomeTest=testSample[,"Insurgency"],
                                                                  .modelNames=c("LMER", "SAE", "GLM"))
   
-this.ensemble <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.0001, maxIter=25000, exp=3)
+this.ensemble <- calibrateEnsemble(this.ForecastData, model="logit", tol=0.0001, maxIter=25000, exp=3, method = "EM")
 })
 
 
 
-test_that("logit EBMA model",{
-  demo(presForecast)})
+#test_that("logit EBMA model",{
+#  demo(presForecast)})
 
 test_that("normal EBMA model, with missing obs",{
   data(presidentialForecast)
@@ -614,4 +613,92 @@ test_that("Warning for outcomeCalibration percentage of 0s or 1s less than 10%",
                                .outcomeTest=testSample[,"Insurgency"],
                                .modelNames=c("LMER", "SAE", "GLM")), gives_warning())
 })
+
+
+
+# 
+# #### simulating models with binary outcome
+# N = 1000
+# 
+# alpha<-c(16,8,3)
+# weights = rdirichlet(N, alpha)
+# 
+# forDraw = rmultinomial(1,weights,N)
+# trueW = colMeans(forDraw)
+# 
+# m1 <- runif(N, 0.01,0.9)
+# m2 <- runif(N, 0.01,0.9)
+# m3 <- runif(N, 0.01,0.9)
+# 
+# models <- cbind(m1, m2, m3)
+# prob = rep(NA,N)
+# for(i in 1:N){prob[i] = models[i ,][forDraw[i,]==1]}
+# 
+# outcomeSim = rbinom(N,1,prob )
+# 
+# 
+# dat = makeForecastData(.predCalibration=models,.outcomeCalibration=outcomeSim)
+# this.ensemble.em <- calibrateEnsemble(dat, model="logit", tol = 0.00000000000000000000001, exp=3, method = "EM", useModelParams = T)
+# summary(this.ensemble.em)
+# 
+# this.ensemble.gibbs <- calibrateEnsemble(dat, model="logit", tol = 0.00000000000000000000001, exp=3, method = "gibbs", useModelParams = T)
+# summary(this.ensemble.gibbs)
+# 
+# 
+# 
+# ###### normal model sims
+# 
+# set.seed(123)
+# N <- 1000
+# nmod <- 4
+# W.matrix <- matrix(NA, nrow=N, ncol=nmod)
+# alpha <- c(10,5,3,1)
+# W.matrix <- rdirichlet(N, alpha) #drawing weights, given alphas specified above
+# 
+# 
+# ##vector to select obs from different models	
+# prob<-runif(N)
+# 
+# selection<-function(probability, matrix){
+#   models<-dim(matrix)[2]
+#   obs<-dim(matrix)[1]
+#   interval<-matrix
+#   for(i in 2:models){
+#     interval[,1]<-matrix[,1]
+#     interval[,i]<-rowSums(matrix[,1:i])
+#   }
+#   position<-matrix(as.numeric(((probability<=interval))),ncol=models,nrow=obs)
+#   pos<-rowSums(position)
+#   pos.1<-(pos*(-1))+(models+1)
+#   W.indicator<-pos.1
+#   return(W.indicator)
+# }
+# 
+# select.vec <- selection(prob,W.matrix)
+# 
+# ##creation of observations for DV
+# Dependent<-matrix(ncol = nmod, nrow = N,NA)
+# for(i in 1:nmod){
+#   Dependent[,i]<-rnorm(N,runif(1,min=-10,max=10),runif(1,min=0,max=25))
+# }
+# 
+# ##creation of DV with use of selection vector
+# DV <- means <- matrix(NA, nrow=N)
+# for(i in 1:N){
+#   means[i,] <- Dependent[i, select.vec[i]]
+# }
+# 
+# DV<-rnorm(N, mean = means, sd=1)
+# 
+# test.normal <- makeForecastData(.predCalibration=Dependent,.outcomeCalibration=DV) #create the dataframe to run EBMA algorithm
+# thisEnsemble.em <- calibrateEnsemble(test.normal, model = "normal", useModelParams=F, const=0, method = "EM") #run EBMA algorithm on data
+# thisEnsemble.gibbs <- calibrateEnsemble(test.normal, model = "normal", useModelParams=F, const=0, method = "gibbs") #run EBMA algorithm on data
+# 
+# #save simulated "true" weights
+# weights<-apply(W.matrix,2,mean)
+# 
+# #save difference in "true" and estimated weights
+# error.em <- (thisEnsemble.em@modelWeights-weights)
+# 
+# error.gibbs <- (apply(thisEnsemble.gibbs@posteriorWeights,2,mean)-weights)
 

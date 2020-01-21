@@ -26,6 +26,9 @@ setMethod(f="fitEnsemble",
             if(iterations < (burns)){
               stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
             }
+            if(method == "gibbs" & any(is.na(.forecastData@predCalibration))){
+              stop("Missing values in the calibration set are currently only allowed with EM estimation.")
+            }
             if(method == "gibbs"){
               cat("Model weights estimated using gibbs sampling")
             }
@@ -360,7 +363,9 @@ setMethod(f="fitEnsemble",
               test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
 
             }
-            if(!.testPeriod){{test <- .forecastData@predTest}}
+            if(!.testPeriod){{test <- .forecastData@predTest}
+              {postPredTest <- matrix()}
+              }
             if(useModelParams==FALSE){.models = list()}
 
             new("FDatFitNormal",
