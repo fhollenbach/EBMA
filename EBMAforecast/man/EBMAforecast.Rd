@@ -3,7 +3,6 @@
 \docType{package}
 \name{EBMAforecast}
 \alias{EBMAforecast}
-\alias{EBMAforecast-package}
 \title{EBMAforecast}
 \description{
 The EBMAforecast package allows users to increase the accuracy of forecasting models by pooling multiple component forecasts to generate ensemble forecasts. It includes functions to fit an ensemble Bayesian model averaging (EBMA) model using in-sample predictions, generate ensemble out-of-sample predictions, and create useful data visualizations.

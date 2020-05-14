@@ -9,21 +9,47 @@
 \alias{plot,FDatFitNormal-method}
 \title{Summarize and Plot Ensemble models}
 \usage{
-\S4method{summary}{FDatFitLogit}(object, period = "calibration",
+\S4method{summary}{FDatFitLogit}(
+  object,
+  period = "calibration",
   fitStatistics = c("brier", "auc", "perCorrect", "pre"),
-  threshold = 0.5, baseModel = 0, showCoefs = TRUE, ...)
+  threshold = 0.5,
+  baseModel = 0,
+  showCoefs = TRUE,
+  ...
+)
 
-\S4method{summary}{FDatFitNormal}(object, period = "calibration",
-  fitStatistics = c("rmse", "mae"), threshold = 0.5, baseModel = 0,
-  showCoefs = TRUE, ...)
+\S4method{summary}{FDatFitNormal}(
+  object,
+  period = "calibration",
+  fitStatistics = c("rmse", "mae"),
+  threshold = 0.5,
+  baseModel = 0,
+  showCoefs = TRUE,
+  ...
+)
 
-\S4method{plot}{FDatFitLogit}(x, period = "calibration", subset = 1,
-  mainLabel = "", xLab = "", yLab = "", cols = 1, ...)
+\S4method{plot}{FDatFitLogit}(
+  x,
+  period = "calibration",
+  subset = 1,
+  mainLabel = "",
+  xLab = "",
+  yLab = "",
+  cols = 1,
+  ...
+)
 
-\S4method{plot}{FDatFitNormal}(x, period = "calibration", subset = 1,
-  mainLabel = paste("Observation", subset), xLab = "Outcome",
-  yLab = "Posterior Probability", cols = 2:(length(x@modelNames) + 1),
-  ...)
+\S4method{plot}{FDatFitNormal}(
+  x,
+  period = "calibration",
+  subset = 1,
+  mainLabel = paste("Observation", subset),
+  xLab = "Outcome",
+  yLab = "Posterior Probability",
+  cols = 2:(length(x@modelNames) + 1),
+  ...
+)
 }
 \arguments{
 \item{object}{An object of the subclass "FDatFitLogit" or "FDatFitNormal".}

@@ -7,12 +7,16 @@
 \alias{compareModels,ForecastData-method}
 \title{Function for comparing multiple models based on predictive performance}
 \usage{
-compareModels(.forecastData, .period = "calibration",
+compareModels(
+  .forecastData,
+  .period = "calibration",
   .fitStatistics = c("brier", "auc", "perCorrect", "pre"),
-  .threshold = 0.5, .baseModel = 0, ...)
+  .threshold = 0.5,
+  .baseModel = 0,
+  ...
+)
 
-\S4method{compareModels}{ForecastData}(.forecastData, .period,
-  .fitStatistics, .threshold, .baseModel)
+\S4method{compareModels}{ForecastData}(.forecastData, .period, .fitStatistics, .threshold, .baseModel)
 }
 \arguments{
 \item{.forecastData}{An object of class 'ForecastData'.}

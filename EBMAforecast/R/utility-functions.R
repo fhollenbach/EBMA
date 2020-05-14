@@ -35,8 +35,6 @@
 #' @author  Michael D. Ward <\email{michael.d.ward@@duke.edu}> and Jacob M. Montgomery <\email{jacob.montgomery@@wustl.edu}> and Florian M. Hollenbach <\email{florian.hollenbach@@tamu.edu}>
 #'
 #' @rdname setFunctions
-
-#' @rdname setFunctions
 setGeneric("setPredCalibration<-",function(object,value){standardGeneric("setPredCalibration<-")})
 
 #' @rdname setFunctions
@@ -45,8 +43,8 @@ setReplaceMethod(
 	f="setPredCalibration",
 	signature="ForecastData",
 	definition=function(object,value){
-          if(class(value)=="data.frame"){value <- as.matrix(value)}
-          if(class(value)=="matrix"){value <- array(value, dim=c(nrow(value), ncol(value), 1))}
+          if(is(value, "data.frame")){value <- as.matrix(value)}
+          if(is(value, "matrix")){value <- array(value, dim=c(nrow(value), ncol(value), 1))}
           object@predCalibration = value
           validObject(object)
           return(object)
@@ -62,8 +60,8 @@ setReplaceMethod(
 	f="setPredTest",
 	signature="ForecastData",
 	definition=function(object,value){
-          if(class(value)=="data.frame"){value <- as.matrix(value)}
-          if(class(value)=="matrix"){value <- array(value, dim=c(nrow(value), ncol(value), 1))}
+          if(is(value, "data.frame")){value <- as.matrix(value)}
+          if(is(value, "matrix")){value <- array(value, dim=c(nrow(value), ncol(value), 1))}
           object@predTest<- value
 		validObject(object)
 		return(object)

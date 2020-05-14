@@ -68,10 +68,10 @@ setMethod(f="makeForecastData",
             .outcomeTest,
             .modelNames)
           {
-            if(class(.predCalibration)=="data.frame"){.predCalibration <- as.matrix(.predCalibration)}
-            if(class(.predTest)=="data.frame"){.predTest <- as.matrix(.predTest)}
-            if(class(.predCalibration)=="matrix"){.predCalibration <- array(.predCalibration, dim=c(nrow(.predCalibration), ncol(.predCalibration), 1))}
-            if(class(.predTest)=="matrix"){.predTest <- array(.predTest, dim=c(nrow(.predTest), ncol(.predTest), 1))}
+            if(is(.predCalibration, "data.frame")){.predCalibration <- as.matrix(.predCalibration)}
+            if(is(.predTest, "data.frame")){.predTest <- as.matrix(.predTest)}
+            if(is(.predCalibration, "matrix")){.predCalibration <- array(.predCalibration, dim=c(nrow(.predCalibration), ncol(.predCalibration), 1))}
+            if(is(.predTest, "matrix")){.predTest <- array(.predTest, dim=c(nrow(.predTest), ncol(.predTest), 1))}
             if(length(.modelNames)<ncol(.predCalibration)){
               .modelNames <- paste("Model", 1:ncol(.predCalibration))
             }

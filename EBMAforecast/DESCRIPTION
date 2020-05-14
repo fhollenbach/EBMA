@@ -17,7 +17,8 @@ Imports: Rcpp (>= 1.0.2),
 	 methods	
 LinkingTo: Rcpp
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+LazyData: true
+RoxygenNote: 7.1.0
 Collate: 
     'EBMAforecast.R'
     'forecastData.R'

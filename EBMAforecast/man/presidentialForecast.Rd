@@ -4,7 +4,9 @@
 \name{presidentialForecast}
 \alias{presidentialForecast}
 \title{Sample data Presidential Election}
-\format{An object of class \code{data.frame} with 15 rows and 7 columns.}
+\format{
+An object of class \code{data.frame} with 15 rows and 7 columns.
+}
 \usage{
 presidentialForecast
 }

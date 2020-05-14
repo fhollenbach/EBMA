@@ -5,7 +5,11 @@
 \alias{calibrationSample}
 \alias{testSample}
 \title{Sample data Insurgency Predictions}
-\format{An object of class \code{matrix} with 696 rows and 4 columns.}
+\format{
+An object of class \code{matrix} (inherits from \code{array}) with 696 rows and 4 columns.
+
+An object of class \code{matrix} (inherits from \code{array}) with 348 rows and 4 columns.
+}
 \usage{
 calibrationSample
 
