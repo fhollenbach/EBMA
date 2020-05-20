@@ -205,12 +205,11 @@ setMethod(f="fitEnsemble",
                 LL = store.LL[dim(W)[1]]
                 iter = store.iter[dim(W)[1]]
               }
-              .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
-              bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
-              bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
-              bmaPred[,,-1] <- NA
-              cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
-              
+                .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
+                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+                bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
+                bmaPred[,,-1] <- NA
+                cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
               if(sum(W)<=.99 || sum(W)>1.01){
                 cat("WARNING: Model weights do not sum to approximately one. Something might be wrong.")
               }
@@ -255,29 +254,27 @@ setMethod(f="fitEnsemble",
                           The posterior EBMA prediction is only based on the last set of weights.")
                 }
                 }
-
-              .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
-              postPredCal <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
-              for(i in 1:dim(W.mat)[1]){
-                bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
-                bmaPred <-  bmaPred/array(t(W.mat[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
-                bmaPred[,,-1] <- NA
-                postPredCal[,i] <- bmaPred[,1,]
-              }
-              ### median or mean weights for results (depending on predType) and prediction
-              if(predType == "posteriorMedian"){
-                cat("Predictive performance statistics and vector of model weights based on posterior median.")
-                W <- apply(W.mat, 2, FUN=median)
-                bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
-              }
-              if(predType == "posteriorMean"){
-                cat("Predictive performance statistics and vector of model weights based on posterior mean.")
-                W <- apply(W.mat, 2, FUN=mean)
-                bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
-              }
-              # print(bmaPred)
-              cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
-              
+                .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
+                postPredCal <- matrix(data=NA, nrow=dim(predCalibrationAdj)[1], ncol=dim(W.mat)[1])
+                for(i in 1:dim(W.mat)[1]){
+                  bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W.mat[i,], na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
+                  bmaPred <-  bmaPred/array(t(W.mat[i,]%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
+                  bmaPred[,,-1] <- NA
+                  postPredCal[,i] <- bmaPred[,1,]
+                }
+                ### median or mean weights for results (depending on predType) and prediction
+                if(predType == "posteriorMedian"){
+                  cat("Predictive performance statistics and vector of model weights based on posterior median.")
+                  W <- apply(W.mat, 2, FUN=median)
+                  bmaPred[,1,] <- apply(postPredCal, 1, FUN=median)
+                }
+                if(predType == "posteriorMean"){
+                  cat("Predictive performance statistics and vector of model weights based on posterior mean.")
+                  W <- apply(W.mat, 2, FUN=mean)
+                  bmaPred[,1,] <- apply(postPredCal, 1, FUN=mean)
+                }
+                # print(bmaPred)
+                cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
                 if(sum(apply(W.mat, 2, mean))<=.99 || sum(apply(W.mat, 2, mean))>1.01){
                   cat("WARNING: The mean posterior model weights do not sum to approximately one. Something might be wrong.")
                 }
