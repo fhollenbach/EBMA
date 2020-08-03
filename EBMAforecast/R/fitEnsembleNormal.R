@@ -26,9 +26,9 @@ setMethod(f="fitEnsemble",
             if(iterations < (burns)){
               stop("Number of iterations is smaller than the burnin. Increase the number of iterations or decrease the burnin.")
             }
-            if(method == "gibbs" & any(is.na(.forecastData@predCalibration))){
-              stop("Missing values in the calibration set are currently only allowed with EM estimation.")
-            }
+            #if(method == "gibbs" & any(is.na(.forecastData@predCalibration))){
+            #  stop("Missing values in the calibration set are currently only allowed with EM estimation.")
+            #}
             if(method == "gibbs"){
               cat("Model weights estimated using gibbs sampling")
             }
@@ -128,10 +128,13 @@ setMethod(f="fitEnsemble",
             if(useModelParams==TRUE){
               .models <- plyr::alply(predCalibration, 2:3, .fun=.modelFitter)
               for(i in 1:nMod){
-                if(any(unname(.models[[i]][[2]]) > 0.5)){
-                  cat("WARNING: Problematic Cook's Distances (> 0.5) \n", "Model", names(.models[i]), ":",
-                      which(unname(.models[[i]][[2]]) > 0.5), "\n")
+                if(any(unname(.models[[i]][[2]]) > 0.5, na.rm = TRUE)){
+                  cat("WARNING: Problematic Cook's Distances (> 0.5) for", "Model", names(.models[i]), "\n")
+                      #which(unname(.models[[i]][[2]]) > 0.5), "\n")
                   #warning("Problematic Cook's Distances (> 0.5), see above output (under 'this.ensemble').")
+                }
+                if(all(is.finite(unname(.models[[i]][[2]]))==FALSE)){
+                  cat("WARNING: Cook's Distances could not be calculated for", "Model", names(.models[i]), "\n Probably too few non-missing observations. \n")
                 }
                 .models[[i]] <- .models[[i]][[1]]
               }
@@ -245,7 +248,12 @@ setMethod(f="fitEnsemble",
               
               ### if W is not a matrix, call to rcpp for em
               if(is.null(dim(W))){
-                out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, modelPriors, sigma2, iterations, burns, thinning)
+                if(any(is.na(.forecastData@predCalibration))){
+                  out  = GibbsNormalMissing(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, modelPriors, sigma2, iterations, burns, thinning)
+                }
+                if(any(is.na(.forecastData@predCalibration))==F){
+                  out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), W, modelPriors, sigma2, iterations, burns, thinning)
+                }
                 W.mat <- out$W
                 Sigma.mat = out$Sigma
               }
@@ -254,14 +262,19 @@ setMethod(f="fitEnsemble",
               # checking to see if the weights significantly differ
               if(is.matrix(W)){
                 # Matrix to store all posterior weights in
-                store.W.median <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
-                colnames(store.W.median) <- modelNames
+                store.W.mean <- matrix(data=NA, nrow=dim(W)[1], ncol=dim(W)[2])
+                colnames(store.W.mean) <- modelNames
                 
                 for(i in 1:dim(W)[1]){
                   vectorW <- W[i,]
-                  out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, alpha = modelPriors, sigma = sigma2, iterations, burns, thinning)
+                  if(any(is.na(.forecastData@predCalibration))){
+                    out  = GibbsNormalMissing(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, modelPriors, sigma2, iterations, burns, thinning)
+                  }
+                  if(any(is.na(.forecastData@predCalibration))==F){
+                    out  = GibbsNormal(outcomeCalibration, matrix(predCalibrationAdj[,,1],ncol=nMod), vectorW, modelPriors, sigma2, iterations, burns, thinning)
+                  }
                   W.mat <- out$W
-                  store.W.median[i,] <- apply(W.mat, 2, FUN=median)
+                  store.W.mean[i,] <- apply(W.mat, 2, FUN=mean)
                   }
                 ### save posterior weights based on last set of initial weights
                 W.mat <- W.mat
@@ -271,11 +284,11 @@ setMethod(f="fitEnsemble",
                 combs <- gtools::combinations(dim(W)[1], 2)
                 store.MAD <- rep(NA,dim(combs)[1])
                 for(i in 1:dim(combs)[1]){
-                  store.MAD[i] <- mean(abs(store.W.median[combs[i,1], ] - store.W.median[combs[i,2], ]), na.rm = T)
+                  store.MAD[i] <- mean(abs(store.W.mean[combs[i,1], ] - store.W.mean[combs[i,2], ]), na.rm = T)
                   }
                 # Error if any mean absolute difference of posterior weights > 0.0001
-                if(any(store.MAD > 0.0001)){
-                  cat("WARNING: The mean absolute difference between the sets of median posterior weights is above 0.0001. \n
+                if(any(store.MAD > 0.001)){
+                  cat("WARNING: The mean absolute difference between the sets of mean posterior weights is above 0.001. \n
                           The posterior EBMA prediction is only based on the last set of weights.")
                   }
               }
