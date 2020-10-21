@@ -20,7 +20,7 @@ setMethod(f="fitEnsemble",
             iterations= 40000,
             burns = 20000,
             thinning = 20,
-            modelPriors = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2])
+            modelPriors = rep(1,dim(.forecastData@predCalibration)[2])
             )
           {
             if(iterations < (burns)){

@@ -17,8 +17,7 @@ calibrateEnsemble(
   W = rep(1/dim(.forecastData@predCalibration)[2],
     dim(.forecastData@predCalibration)[2]),
   const = 0,
-  modelPriors = rep(1/dim(.forecastData@predCalibration)[2],
-    dim(.forecastData@predCalibration)[2]),
+  modelPriors = rep(1, dim(.forecastData@predCalibration)[2]),
   iterations = 40000,
   burns = 20000,
   thinning = 20,
@@ -37,8 +36,7 @@ calibrateEnsemble(
   W = rep(1/dim(.forecastData@predCalibration)[2],
     dim(.forecastData@predCalibration)[2]),
   const = 0,
-  modelPriors = rep(1/dim(.forecastData@predCalibration)[2],
-    dim(.forecastData@predCalibration)[2]),
+  modelPriors = rep(1, dim(.forecastData@predCalibration)[2]),
   iterations = 40000,
   burns = 20000,
   thinning = 20,
@@ -66,7 +64,7 @@ calibrateEnsemble(
 
 \item{const}{User provided "wisdom of crowds" parameter, serves as minimum model weight for all models. Default = 0. Only used in model estimated using EM.}
 
-\item{modelPriors}{User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1/n Models for all models.}
+\item{modelPriors}{User provided vector of Dirichlet prior for each of the models. Only used in normal model estimated with gibbs sampling. Default prior is 1 for each model.}
 
 \item{iterations}{The number of iterations for the Bayesian model. Default = 40000.}
 

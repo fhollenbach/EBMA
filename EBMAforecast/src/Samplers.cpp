@@ -198,7 +198,7 @@ Rcpp::List GibbsNormal(Rcpp::NumericVector outcome, Rcpp::NumericMatrix predicti
         W_out(outcount,m) =   W_post(iterator,m);
       }
     }
-    temp  = (1/as<double>(Rcpp::rchisq(1,(length-1))))*((as<double>(ssq)));
+    temp  = (1/as<double>(Rcpp::rgamma(1,(length+1)/2, (1/(as<double>(ssq)/2)))));
     Sigma_post(iterator) = sqrt(temp);
     if(((iterator+1) % thin == 0) and (iterator+1 > burnin)){;
       Sigma_out(outcount) = Sigma_post(iterator);
@@ -222,7 +222,6 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
   int nmods = prediction.ncol();
   int outcount = 0;
   int output = round((iterations-burnin)/thin);
-  Rcpp::List theta_post(iterations);
   Rcpp::NumericMatrix W_post(iterations,nmods);
   Rcpp::NumericMatrix W_out(output,nmods);
   Rcpp::NumericVector Sigma_post(iterations);
@@ -232,7 +231,7 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
   for(int i = 0; i < length; i++){;
     MissingInd(i,_) = isNA(prediction(i,_));
   }
-  
+
   for (int iterator = 0; iterator < iterations; iterator++){;
     Rcpp::NumericVector W_use(nmods);
     Rcpp::NumericMatrix evalsEach(length,nmods);
@@ -267,7 +266,6 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
       evalsAll(i) = sum(evalsEach(i,_));
       theta(i,_) = evalsEach(i,_)/evalsAll(i);
     }
-    
     for(int i=0; i<length; i++){;
       T(i,_) = oneMultinomCalt(theta(i,_));
     };
@@ -300,7 +298,7 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
         W_out(outcount,m) =   W_post(iterator,m);
       }
     }
-    temp  = (1/as<double>(Rcpp::rchisq(1,(length-1))))*((as<double>(ssq)));
+    temp  =  (1/as<double>(Rcpp::rgamma(1,(length+1)/2, (1/(as<double>(ssq)/2)))));
     Sigma_post(iterator) = sqrt(temp);
     if(((iterator+1) % thin == 0) and (iterator+1 > burnin)){;
       Sigma_out(outcount) = Sigma_post(iterator);
