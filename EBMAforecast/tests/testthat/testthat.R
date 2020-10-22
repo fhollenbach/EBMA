@@ -397,10 +397,10 @@ expect_false((check1@modelWeights==check2@modelWeights)[[1]])
 
 test_that("predType changes prediction (normal - results)",{
 	this.ForecastData <- makeForecastData(.predCalibration=predictions,.outcomeCalibration=true,.predTest=test.pred,.outcomeTest=test.true, .modelNames=c("m1", "m2", "m3","m4"))
-check1<-calibrateEnsemble(this.ForecastData, model="normal", tol=0.00001, maxIter=25000, exp=3,useModelPara=FALSE,predType="posteriorMedian")
-check2<-calibrateEnsemble(this.ForecastData, model="normal", tol=0.00001, maxIter=25000, exp=3,useModelPara=FALSE,predType="posteriorMean")
-expect_true((check1@modelWeights==check2@modelWeights)[[1]])
-expect_false((check1@predTest[,1,1]==check2@predTest[,1,1])[[1]])
+        check1<-calibrateEnsemble(this.ForecastData, model="normal",method = "gibbs", useModelPara=FALSE,predType="posteriorMedian")
+        check2<-calibrateEnsemble(this.ForecastData, model="normal", method = "gibbs", useModelPara=FALSE,predType="posteriorMean")
+        expect_true((check1@modelWeights!=check2@modelWeights)[[1]])
+        expect_true((check1@predTest[,1,1]!=check2@predTest[,1,1])[[1]])
 })
 
 test_that("model option = logit changes results (normal - results)",{

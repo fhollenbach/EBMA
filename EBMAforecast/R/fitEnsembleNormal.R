@@ -14,7 +14,7 @@ setMethod(f="fitEnsemble",
             method="EM",
             exp=numeric(),
             useModelParams = TRUE,
-            predType="posteriorMedian",
+            predType="posteriorMean",
             const=0,
             W = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
             iterations= 40000,
@@ -220,22 +220,22 @@ setMethod(f="fitEnsemble",
               .flatPreds <- plyr::aaply(predCalibrationAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)})
               .sdVec <- rep(sqrt(sigma2), nMod)
   
-              if (predType=="posteriorMean"){
+              #if (predType=="posteriorMean"){
                 bmaPred <- array(plyr::aaply(.flatPreds, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsCal, 1,nDraws))
                 bmaPred <-  bmaPred/array(t(W%*%t(1*!is.na(.flatPreds))), dim=c(nObsCal, 1, nDraws))
                 bmaPred[,,-1] <- NA
-              }
+              #}
   
-              if (predType=="posteriorMedian"){
-                .altQBMAnormal <- function(x){
-                  .x <- x[!is.na(x)]
-                  .W <- W[!is.na(x)]
-                  ..sdVec <- .sdVec[!is.na(x)]
-                  .ebmaMedian(.W, .x, ..sdVec)
-                }
-               bmaPred <- array(plyr::aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
-               bmaPred[,,-1] <- NA
-              }
+              #if (predType=="posteriorMedian"){
+              #  .altQBMAnormal <- function(x){
+              #    .x <- x[!is.na(x)]
+              #    .W <- W[!is.na(x)]
+              #    ..sdVec <- .sdVec[!is.na(x)]
+              #    .ebmaMedian(.W, .x, ..sdVec)
+              #  }
+              # bmaPred <- array(plyr::aaply(.flatPreds, 1, .altQBMAnormal),  dim=c(nObsCal, 1,nDraws))
+              # bmaPred[,,-1] <- NA
+              #}
               cal <- abind::abind(bmaPred, .forecastData@predCalibration, along=2); colnames(cal) <- c("EBMA", modelNames)
               
               if(sum(W)<=.99 || sum(W)>1.01){
@@ -337,22 +337,22 @@ setMethod(f="fitEnsemble",
               .flatPredsTest <- matrix(plyr::aaply(predTestAdj, c(1,2), function(x) {mean(x, na.rm=TRUE)}), ncol=nMod)
               
               if(method == "EM"){
-                if (predType=="posteriorMean"){
+                #if (predType=="posteriorMean"){
                   bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                   bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                   bmaPredTest[,,-1] <- NA
-                }
+                #}
   
-                if (predType=="posteriorMedian"){
-                  .altQBMAnormal <- function(x){
-                    .x <- x[!is.na(x)]
-                    .W <- W[!is.na(x)]
-                    ..sdVec <- .sdVec[!is.na(x)]
-                    .ebmaMedian( .W, .x, ..sdVec)
-                  }
-                  bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
-                  bmaPredTest[,,-1] <- NA
-                }
+                #if (predType=="posteriorMedian"){
+                #  .altQBMAnormal <- function(x){
+                #    .x <- x[!is.na(x)]
+                #    .W <- W[!is.na(x)]
+                #    ..sdVec <- .sdVec[!is.na(x)]
+                #    .ebmaMedian( .W, .x, ..sdVec)
+                #  }
+                #  bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
+                #  bmaPredTest[,,-1] <- NA
+                #}
   
                 test <- abind::abind(bmaPredTest, .forecastData@predTest, along=2);  colnames(test) <- c("EBMA", modelNames)
                 }

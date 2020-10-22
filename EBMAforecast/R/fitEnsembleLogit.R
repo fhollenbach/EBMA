@@ -6,7 +6,7 @@ NULL
 #' @importFrom plyr alply aaply laply
 #'
 setGeneric(name="fitEnsemble",
-           def=function(.forecastData,  tol = sqrt(.Machine$double.eps), maxIter=1e6, method="EM", exp=1, useModelParams=TRUE, predType="posteriorMedian", const=0,W=c(), iterations=10000, burns = 1000, thinning = 50, ...)
+           def=function(.forecastData,  tol = sqrt(.Machine$double.eps), maxIter=1e6, method="EM", exp=1, useModelParams=TRUE, predType="posteriorMean", const=0,W=c(), iterations=10000, burns = 1000, thinning = 50, ...)
            {standardGeneric("fitEnsemble")}
            )
 
@@ -19,7 +19,7 @@ setMethod(f="fitEnsemble",
             method="EM",
             exp=1,
             useModelParams=TRUE,
-            predType="posteriorMedian",
+            predType="posteriorMean",
             const=0,
             W = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),
             modelPriors = rep(1/dim(.forecastData@predCalibration)[2],dim(.forecastData@predCalibration)[2]),

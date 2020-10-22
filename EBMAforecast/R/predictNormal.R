@@ -67,22 +67,22 @@ setMethod(f="prediction",
             
             if(method == "EM"){
               .posteriorW <- postPredTest <- matrix() ### empty in EM 
-              if (predType=="posteriorMean"){
+              #if (predType=="posteriorMean"){
                 bmaPredTest <-array(plyr::aaply(.flatPredsTest, 1, function(x) {sum(x* W, na.rm=TRUE)}), dim=c(nObsTest, 1,nDraws))
                 bmaPredTest <-  bmaPredTest/array(t(W%*%t(1*!is.na(.flatPredsTest))), dim=c(nObsTest, 1, nDraws))
                 bmaPredTest[,,-1] <- NA
-              }
+              #}
                
-              if (predType=="posteriorMedian"){
-                .altQBMAnormal <- function(x){
-                  .x <- x[!is.na(x)]
-                  .W <- W[!is.na(x)]
-                  ..sdVec <- .sdVec[!is.na(x)]
-                  .ebmaMedian(.W, .x, ..sdVec)
-                }
-                bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
-                bmaPredTest[,,-1] <- NA
-              }
+              #if (predType=="posteriorMedian"){
+              #  .altQBMAnormal <- function(x){
+              #    .x <- x[!is.na(x)]
+              #    .W <- W[!is.na(x)]
+              #    ..sdVec <- .sdVec[!is.na(x)]
+              #    .ebmaMedian(.W, .x, ..sdVec)
+              #  }
+              #  bmaPredTest <- array(plyr::aaply(.flatPredsTest, 1, .altQBMAnormal),  dim=c(nObsTest, 1,nDraws))
+              #  bmaPredTest[,,-1] <- NA
+              #}
                
               test <- abind(bmaPredTest, Predictions, along=2);  colnames(test) <- c("EBMA", modelNames)
             }
