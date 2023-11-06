@@ -2,6 +2,8 @@
 NULL
 
 #' @rdname SummarizePlot
+#' @importFrom separationplot separationplot
+
 #' @export
 setClass(Class="SummaryForecastData",
          representation=representation(

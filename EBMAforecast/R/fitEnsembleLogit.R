@@ -2,6 +2,7 @@
 NULL
 #' @useDynLib EBMAforecast
 #' @importFrom Rcpp sourceCpp
+#' @importFrom gtools combinations
 
 #' @importFrom plyr alply aaply laply
 #'
