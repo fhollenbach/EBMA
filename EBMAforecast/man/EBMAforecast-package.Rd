@@ -11,7 +11,7 @@ Create forecasts from multiple predictions using ensemble Bayesian model averagi
 \seealso{
 Useful links:
 \itemize{
-  \item \url{<www.github.com/fhollenbach/EBMA/>}
+  \item \url{https://github.com/fhollenbach/EBMA/}
 }
 
 }
