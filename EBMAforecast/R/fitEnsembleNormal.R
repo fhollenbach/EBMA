@@ -44,7 +44,7 @@ setMethod(f="fitEnsemble",
               if(dim(W)[2] != dim(.forecastData@predCalibration)[2]){
                 stop("The number of initial model weights must be of length of the number of predictive models included.")}
               for(i in 1:nrow(W)){
-                if(sum(W[i,]) != 1){
+                if(isFALSE(all.equal(sum(W[i,]),1))){
                   stop("Each set of initial model weights must sum to 1.")}
               }
             }
@@ -53,7 +53,7 @@ setMethod(f="fitEnsemble",
               #check wether W is of right length and sums to 1
               if(length(W) != dim(.forecastData@predCalibration)[2] & is.null(W)==FALSE){
                 stop("Vector of initial model weights must be of length of the number of predictive models included.")}
-              if(sum(W) != 1 & is.null(W)==FALSE){
+              if(isFALSE(all.equal(sum(W),1)) & is.null(W)==FALSE){
                 stop("Vector of initial model weights must sum to 1.")}
             }
 
