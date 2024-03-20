@@ -1,8 +1,8 @@
 Package: EBMAforecast
 Type: Package
 Title: Estimate Ensemble Bayesian Model Averaging Forecasts using Gibbs Sampling or EM-Algorithms
-Version: 1.0.31
-Date: 2023-11-06
+Version: 1.0.32
+Date: 2024-03-19
 Authors@R: c(person("Florian M.", "Hollenbach", email = "fho.egb@cbs.dk",
                   role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9599-556X")),
 	person("Jacob M.", "Montgomery", role = c("aut")),
