@@ -226,7 +226,7 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
   Rcpp::NumericMatrix W_out(output,nmods);
   Rcpp::NumericVector Sigma_post(iterations);
   Rcpp::NumericVector Sigma_out(output);
-  Rcpp::NumericMatrix MissingInd(length,nmods);
+  Rcpp::LogicalMatrix MissingInd(length, nmods);
   
   for(int i = 0; i < length; i++){;
     MissingInd(i,_) = isNA(prediction(i,_));
@@ -254,10 +254,9 @@ Rcpp::List GibbsNormalMissing(Rcpp::NumericVector outcome, Rcpp::NumericMatrix p
     }    
     for(int m = 0; m < nmods; m++){;
       for(int i = 0; i < length; i++){;
-        if(MissingInd(i,m) == FALSE){;
+        if(!MissingInd(i,m)){;
           evalsEach(i,m) = W_use(m)*(R::dnorm(outcome(i),prediction(i,m),sigma_use,false));
-        };
-        if(MissingInd(i,m) == TRUE){;
+        } else {;
           evalsEach(i,m) = 0;
         };
       };

@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Florian M. Hollenbach \email{fho.egb@cbs.dk} (\href{https://orcid.org/0000-0002-9599-556X}{ORCID})
   \item Jacob M. Montgomery
   \item Michael D. Ward
 }
