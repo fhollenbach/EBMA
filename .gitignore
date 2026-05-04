@@ -17,3 +17,4 @@ EBMAforecast/src/*.dll
 EBMAforecast/src/EBMAforecast.so
 EBMAforecast/src/RcppExports.o
 EBMAforecast/src/Samplers.o
+.positai
